@@ -1,0 +1,480 @@
+body{
+    margin: 0;
+    padding: 0;
+    font-family: sans-serif;
+    background-color: gainsboro;
+
+}
+
+.form-container{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 85vh;
+}
+
+.form-content{
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    padding: 40px;
+    border-radius: 10px;
+    width: 25%;
+    text-align: center;
+}
+
+#form-container{
+    min-height: 70vh;
+}
+.input-fields{
+    margin-bottom: 20px;
+    border-radius: 6px;
+    border: 1px solid black;
+    padding: 10px;
+    height: 25px;
+}
+
+.input-fields:invalid{
+    border: 2px solid red;
+}
+
+.input-field{
+    margin-bottom: 20px;
+    border-radius: 6px;
+    border: 1px solid black;
+    padding: 10px;
+    background-color: rgb(32, 101, 220);
+    color: white;
+    cursor: pointer;
+    border: none;
+    font-size: 18px;
+    transition: background-color 0.3s ease-in-out;
+}
+
+.input-field:hover{
+    background-color: rgb(9, 9, 189);
+}
+
+.x-button{
+    width: 10%;
+    padding: 8px;
+    background-color:red;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.x-button:hover{
+    background-color: rgb(187, 35, 35);
+}
+
+.x-button-container{
+    display: flex;
+    align-items: center;
+    justify-content: right;
+}
+
+.register-btn{
+    width:50%;
+    background-color: rgb(20, 175, 35);
+    border-radius: 5px;
+    font-size: 18px;
+    padding: 8px;
+    color: white;
+    cursor: pointer;
+    border:none;
+    transition: background-color 0.3s ease-in-out;
+}
+
+.register-btn:hover{
+    background-color: rgb(10, 159, 10);
+}
+
+.register-btn-container{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.header-info{
+    margin-left: 10px;
+    color: white;
+}
+
+.header-container{
+    background-color: rgb(32, 101, 220);
+    padding: 10px;
+}
+
+label{
+    font-weight: bold;
+}
+
+table{
+    width: 100%;
+    margin-top: 15px;
+    text-align: center;
+}
+
+th, td{
+    text-align: center;
+}
+
+.login-idno, .login-password{
+    text-align: left;
+}
+
+nav{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background-color: rgb(32, 101, 220);
+    color: white;
+}
+
+nav h1{
+    margin-left: 20px;
+    font-size: 30px;
+}
+
+nav a{
+    text-decoration: none;
+    color: white;
+    margin-right: 17px;
+    font-weight: bold;
+    font-size: 18px;
+    transition: color 0.3s ease-in, text-decoration 0.3s ease-in-out;
+    display: inline-block; 
+    white-space: normal;
+    word-wrap: break-word; 
+    overflow-wrap: break-word;
+    max-width: 110px;
+}
+
+nav a:hover{
+    color: rgb(197, 194, 194);
+}
+
+.student-info-container{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 50px;
+}
+
+.student-info-content{
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    width: 350px;
+    height: 450px;
+    margin: 10px auto;
+    border-radius: 10px;
+    box-shadow: 5px 10px gray;
+}
+
+p, h4, h3{
+    margin: 8px 8px;
+    padding: 8px 8px;
+}
+
+.announcement-container{
+    width: 400px;
+    background-color: white;
+    flex-direction: column;
+    width: 450px;
+    height: 450px;
+    margin: 10px auto;
+    border-radius: 10px;
+    box-shadow: 5px 10px gray;
+}
+
+.announcement-container-admin{
+    width: 400px;
+    background-color: white;
+    flex-direction: column;
+    width: 450px;
+    height: 430px;
+    margin: 10px auto;
+    border-radius: 10px;
+}
+
+.rules-content{
+    width: 400px;
+    background-color: white;
+    flex-direction: column;
+    width: 450px;
+    height: 450px;  
+    margin: 10px auto;
+    border-radius: 10px;
+    overflow: scroll;
+    overflow-x: hidden;
+    box-shadow: 5px 10px gray;
+}
+
+.student-info-content label{
+    margin: 5px 0;
+    margin-left: 10px;
+}
+
+.profile-pic{
+    height: 180px;
+    border-radius: 50%;
+    width: 50%;
+    margin: 5px auto;
+}
+
+.student-info{
+    background-color: rgb(32, 101, 220);
+    padding: 20px;
+    text-align: center;
+    color: white;
+    border-top-right-radius: 10px;
+    border-top-left-radius: 10px;
+}
+
+.logout-btn{
+    background-color: red;
+    padding: 12px;
+    text-decoration: none;
+    border-radius: 8px;
+}
+
+.logout-btn:hover{
+    text-decoration: none;
+    background-color: rgb(187, 35, 35);
+}
+
+.rules-title{
+    text-align: center;
+}
+
+.letters{
+    margin-bottom: -15px;
+    margin-left: 30px;
+}
+
+.menu-icon{
+    display: none;
+}
+
+.register-modal{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 30%;
+    left: 37%;
+    width: 400px;
+    height: 100px;
+}
+
+.register-modal-content{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    background-color: white;
+    color: black;
+    border-radius: 15px;
+}
+
+.confirm-btn{
+    margin-bottom: 15px;
+    padding: 10px;
+    background-color: rgb(48, 209, 48);
+    border-radius: 5px;
+    cursor:pointer;
+    color: white;
+    border: none;
+}
+
+.confirm-btn:hover{
+    background-color: green;
+}
+.check-logo{
+    width: 200px;
+    margin-top: 15px;
+}
+
+.modal-container-reservation{
+    position: fixed;
+    left: 41%;
+    top: 58%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+}
+
+.modal-container-reservation label{
+    margin-bottom: 10px;
+}
+
+.modal-container-reservation h1{
+    text-align: left;
+}
+
+.modal-content-reservation form{
+    display: flex;
+    flex-direction: column; 
+    background-color: white;
+    padding: 18px;
+    border-radius: 10px;
+    width: 200%;
+    box-shadow: 5px 5px 3px 3px gray;
+}
+
+.modal-content-reservation form input,
+.modal-content-reservation form select{
+    width: 100%;
+    height: 23px;
+    margin-bottom: 15px;
+    border: 1px solid black;
+    border-radius: 5px;
+}
+
+.sit-in-closebtn input[type="submit"]{
+    background-color: rgb(34, 224, 34);
+    color: white;
+    width: 20%;
+    padding: 9px;
+    border: none;
+    height: 35px;
+    cursor: pointer;
+}
+
+.sit-in-closebtn{
+    text-align: end;
+}
+
+#search-bg {
+    display: none; 
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); 
+    z-index: 1000; 
+}
+
+.search-container{
+    position: fixed;
+    left: 50%;
+    top: 30%;
+    transform: translate(-50%, -50%);
+    padding: 30px;
+    background-color: white;
+    width: 30%;
+    margin: 30px auto;
+    border-radius: 10px;
+    box-shadow: 3px 3px 3px 3px whitesmoke ;
+    z-index: 10001;
+}
+
+.search-content form{
+    text-align: center;
+}
+
+.search-content form    input[type="number"]{
+    height: 40px;
+    width: 250px;
+    border-radius: 50px;
+    border: 1px solid;
+    padding-left: 17px;
+    font-size: 18px;
+}
+
+/*#background{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+    */
+
+table{
+    background-color: white;;
+    padding: 20px;
+}
+
+td{
+    padding-top: 20px;
+}
+
+.search-closebtn button{
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    cursor: pointer;
+    background-color: rgb(236, 29, 29);
+    padding: 5px;
+    border: none;
+    width: 35px;
+    border-radius: 5px;
+    height: 30px;
+}
+
+@media screen and (max-width: 600px){
+    nav .nav-links{
+        display: none;
+        flex-direction: column;
+        position:absolute;
+        left: 15px;
+        top: 18%;
+        background-color: black;
+        padding: 30px;
+        border-radius: 10px;
+        width:180px;
+    }
+
+    nav a{
+        margin-bottom: 20px;
+    }
+
+    nav a:hover{
+        text-decoration: none;
+    }
+    .logout-btn{
+        background-color: black;
+        padding: 0px;
+        text-decoration: none;
+    }
+
+    .logout-btn:hover{
+        background-color: black;
+    }
+
+    .student-info-container{
+        display: flex;
+        flex-direction: column;
+    }
+
+    .menu-icon{
+        display: block;
+        cursor: pointer;
+        position:absolute;
+        left: 15px;
+    }
+
+    .nav-links.active{
+        display: flex;
+    }
+
+    nav h1{
+        margin-left: 40px;
+    }
+
+    .form-content{
+        width: 270px;
+    }
+
+    .register-btn{
+        width: 65%;
+    }
+}

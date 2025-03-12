@@ -1,0 +1,27 @@
+<?php
+include ('db.php');
+
+// Ensure JSON response
+header('Content-Type: application/json');
+
+// Check connection
+if ($conn->connect_error) {
+    die(json_encode(["error" => "Database connection failed: " . $conn->connect_error]));
+}
+
+// Count occurrences of each purpose
+$query = "SELECT purpose, COUNT(*) as count FROM userstbl WHERE purpose IS NOT NULL GROUP BY purpose";
+$result = $conn->query($query);
+
+$data = [];
+$data[] = ['Purpose', 'Count']; // Google Charts requires column headers
+
+while ($row = $result->fetch_assoc()) {
+    $data[] = [$row['purpose'], (int)$row['count']];
+}
+
+$conn->close();
+
+// Output JSON
+echo json_encode($data);
+?>
