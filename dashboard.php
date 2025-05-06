@@ -9,7 +9,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="styles.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="assets/styles.css?v=<?php echo time(); ?>">
     <title>Document</title>
 </head>
 <body>
@@ -17,11 +17,13 @@
     <h1>Dashboard</h1>
     <div class="menu-icon" id="menu-icon">☰</div>
     <div class="nav-links" id="nav-links">
-        <a href="#"> Notification</a>
+        <a href=""> Notification</a>
         <a id="home-nav" href="#"> Home</a>
         <a href="editprofile.php"> Edit Profile</a>
-        <a href="#"> History</a>
+        <a href="sitin-history.php">Sit-in History</a>
         <a href="reservation.php"> Reservation</a>
+        <a href="lab_schedule_student.php">Lab Schedules</a>
+        <a href="lab_resources_view.php">Lab Resources</a>
         <a href="#" class="logout-btn" id="logoutbtn"> Log out </a>
     </div> 
 </nav>
@@ -31,7 +33,7 @@
         <div class="student-info">
             <label>Student Information</label>
         </div> 
-            <img src="logo.jpeg" alt="logo" class="profile-pic">
+            <img src="assets/logo.jpeg" alt="logo" class="profile-pic">
             <label>Name: <?php echo $_SESSION['firstname'] ?? 'N/A'; ?> <?php echo $_SESSION['lastname'] ?? '';?></label>
             <label>Course: <?php echo $_SESSION['course'];?></label>
             <label>Year: <?php echo $_SESSION['level'];?></label>
@@ -43,15 +45,24 @@
         <div class="student-info">
             <label>Announcement</label>
         </div>
-            <h4>CCS Admin | <?php echo date("Y-m-d")?></h4>
-            <p>The College of Computer Studies will open the registration of students for the Sit-in privilege starting tomorrow. 
-                Thank you! Lab Supervisor
-            </p>
-            <p>_______________________________________________</p>
-            <h4>CCS Admin | <?php echo date("H:i:sa")?></h4>
-            <p>Important Announcement We are excited to announce the launch of our new website! Explore our latest products and services now!</p>
-            <p>_______________________________________________</p>
+
+        <?php
+            $query = "SELECT * FROM announcements ORDER BY created_at DESC";
+            $result = mysqli_query($connection, $query);
+
+            if(mysqli_num_rows($result) > 0) {
+                while($row = mysqli_fetch_assoc($result)) {
+                    echo "<h4>CCS Admin | " . date("Y-m-d H:i:s", strtotime($row['created_at'])) . "</h4>";
+                    echo "<p>" . htmlspecialchars($row['announcement_text']) . "</p>";
+                    echo "<p>_______________________________________________</p>";
+                }
+            } else {
+                echo "<p>No announcements available</p>";
+            }
+        ?>
     </div>
+
+    
     <div class="rules-content">
         <div class="student-info">
             <label>Rules and Regulation</label>
@@ -99,7 +110,7 @@
 <div id="background">
     <div class="register-modal" style="display:none" id="register-modal">
         <div class="register-modal-content">
-            <img src="check.png" alt="check" class="check-logo">
+            <img src="assets/check.png" alt="check" class="check-logo">
             <h3>Success</h3>
             <p>Welcome to dashboard</p>
             <button class="confirm-btn" id="confirm-btn">Confirm</button>

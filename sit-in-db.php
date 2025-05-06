@@ -9,21 +9,26 @@
         $sessions = $_SESSION['sessions'];
         $purpose = $_POST['purpose'];
         $labs = $_POST['labs'];
-        $date = $_POST['date_sit_in'];
+        $status = "active";
 
-        $sessions--;
-        $date = date('y-m-d');
+        date_default_timezone_set("America/New_York");
+        $login_time = date("h:i:s");
 
         $query = "UPDATE userstbl
-                  SET purpose = '$purpose', labs = '$labs', sessions = '$sessions, date_sit_in = $date'
+                  SET purpose = '$purpose', labs = '$labs', status = '$status'
                   WHERE idno = '$idno'";
         $result = mysqli_query($connection, $query);
 
-        if($result){
-            $_SESSION['sessions'] = $sessions;
+        $update_query = "UPDATE sit_in_records
+                         SET login_time = '$login_time'
+                         WHERE student_id = '$idno'";
+        $result_query = mysqli_query($connection, $update_query);
+
+        if($result && $result_query){
             $_SESSION['purpose'] = $purpose;
             $_SESSION['labs'] = $labs;
-            $_SESSION['date_sit_in'] = $date;
+            $_SESSION['status'] = $status;
+            $_SESSION['login_time'] = $login_time;
 
             header('location:admindashboard.php?idnum'. $idno);
         }else{

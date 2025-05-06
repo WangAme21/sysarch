@@ -1,274 +1,265 @@
 <?php
     session_start();
     include('db.php');
-    
-    // Query for purpose
+
     $query_purpose = "SELECT purpose, count(*) as number FROM userstbl GROUP BY purpose";
     $result_purpose = mysqli_query($connection, $query_purpose);
-    
-    // Query for labs
+
     $query_labs = "SELECT labs, count(*) as number FROM userstbl GROUP BY labs";
     $result_labs = mysqli_query($connection, $query_labs);
-?>
 
+    $query_records = "SELECT * FROM sit_in_records ORDER BY date_removed DESC";
+    $result_records = mysqli_query($connection, $query_records);
+    $all_records = mysqli_fetch_all($result_records, MYSQLI_ASSOC);
+    mysqli_data_seek($result_records, 0); // Reset the result set pointer
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="styles.css?v=<?php echo time(); ?>">
-    <title>Document</title>
+    <link rel="stylesheet" href="assets/styles.css?v=<?php echo time(); ?>">
+    <title>View Sit-in Records</title>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-    <script type="text/javascript">
-    google.charts.load('current', {'packages':['corechart', 'charteditor']});
-    google.charts.setOnLoadCallback(drawCharts);
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        .export-buttons {
+            margin: 20px;
+        }
 
-    function drawCharts() {
-        // First pie chart for 'purpose'
-        var data_purpose = google.visualization.arrayToDataTable([
-            ['Purpose', 'Number'],
-            <?php
-            while($row = mysqli_fetch_array($result_purpose)){
-                echo "['".$row["purpose"]."', ".$row["number"]. "], ";      
-            }
-            ?>
-        ]);
+        .export-buttons button {
+            padding: 10px 15px;
+            margin-right: 10px;
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
 
-        var options_purpose = {
-            title: 'Sit-in Purposes Distribution',
-            is3D: true,
-            pieSliceText: 'percentage',
-            legend: { position: 'bottom', alignment: 'center' },
-            tooltip: { isHtml: true, trigger: 'both' },
-            pieSliceTextStyle: { color: 'black', fontSize: 16 },
-            colors: ['#ff6f61', '#6b8e23', '#8a2be2', '#ff6347', '#20b2aa', '#ff1493'],
-        };
+        .export-buttons button:hover {
+            background-color: #45a049;
+        }
 
-        var chart_purpose = new google.visualization.PieChart(document.getElementById('piechart'));
-        chart_purpose.draw(data_purpose, options_purpose);
-
-        // Second pie chart for 'labs'
-        var data_labs = google.visualization.arrayToDataTable([
-            ['Labs', 'Number'],
-            <?php
-            while($row = mysqli_fetch_array($result_labs)){
-                echo "['".$row["labs"]."', ".$row["number"]. "], ";      
-            }
-            ?>
-        ]);
-
-        var options_labs = {
-            title: 'Sit-in Labs Distribution',
-            is3D: true,
-            pieSliceText: 'percentage',
-            legend: { position: 'bottom', alignment: 'center' },
-            tooltip: { isHtml: true, trigger: 'both' },
-            pieSliceTextStyle: { color: 'black', fontSize: 16 },
-            colors: ['#ff6f61', '#6b8e23', '#8a2be2', '#ff6347', '#20b2aa', '#ff1493'],
-        };
-
-        var chart_labs = new google.visualization.PieChart(document.getElementById('piechart2'));
-        chart_labs.draw(data_labs, options_labs);
-    }
-    </script>
+        #searchInput {
+            margin: 10px 20px;
+            padding: 10px;
+            width: 300px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+    </style>
 </head>
-<style>
-    #piechart-container {
-        width: 100%;
-        max-width: 700px;
-        margin: 50px auto; 
-        padding: 20px;
-        background: linear-gradient(135deg, #f0f8ff, #e0f7fa);
-        border-radius: 15px;
-        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); 
-        text-align: center;
-        font-family: Arial, sans-serif;
-    }
-
-    #piechart-container h2 {
-        color: #333;
-        font-size: 24px;
-        margin-bottom: 20px;
-    }
-
-    #piechart {
-        width: 100%;
-        height: 400px;
-        border-radius: 10px;
-    }
-    #piechart2 {
-        width: 100%;
-        height: 400px;
-        border-radius: 10px;
-    }
-
-    .pie-chart-space{
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    @media (max-width: 768px) {
-        #piechart-container {
-            padding: 15px;
-        }
-
-        #piechart {
-            height: 300px;
-        }
-    }
-</style>
-
-
 <body>
 <nav>
     <h1>CCS Admin</h1>
     <div class="menu-icon" id="menu-icon">☰</div>
     <div class="nav-links-admin" id="nav-links">
-        <a id="home-nav" href="admindashboard.php"> Home</a>
-        <a href="#" onclick="searchFunction()" id="search-btn"> Search Students</a>
-        <a href="current-sit-in.php"> Sit-in</a>
-        <a href="view-sit-in-records.php"> View Sit-in Records</a>
-        <a href="#"> Sit-in Reports</a>
-        <a href="#"> Feedback Reports</a>   
-        <a href="#"> Reservation</a>
-        <a href="admin.php" class="logout-btn" id="logoutbtn"> Log out </a>
-    </div> 
+        <a href="admindashboard.php">Home</a>
+        <a href="#" onclick="searchFunction()" id="search-btn">Search Students</a>
+        <a href="current-sit-in.php">Sit-in</a>
+        <a href="view-sit-in-records.php">Sit-in Records</a>
+        <a href="sit-in-reports.php">Sit-in Reports</a>
+        <a href="feedback-reports.php">Feedback Reports</a>
+        <a href="view-reservations.php">Reservation</a>
+        <a href="student_management.php">Student Info</a>
+        <a href="lab_schedule.php">Lab Schedule</a>
+        <a href="lab_resources.php">Lab Resources</a>
+        <a href="admin.php" class="logout-btn" id="logoutbtn">Log out</a>
+    </div>
 </nav>
 
-<div class="modal-container-reservation" id="sit-in" style="display:none">
-    <div class="modal-content-reservation">
-        <form action="sit-in-db.php" method="post">
-            <h1>Sit-in Form</h1>
-                
-                    <label>ID Number:</label>
-                    <input type="idno" readonly value="<?php echo $_SESSION['idno'];?>">
-                
-                    <label>Student Name: </label>
-                    <input type="text" readonly value="<?php echo $_SESSION['firstname'];?> <?php echo $_SESSION['lastname']?>">
-                
-                    <label>Purpose: </label>
-                    <select name="purpose">
-                        <option value="C Programming">C Programming</option>
-                        <option value="Java Programming">Java Programming</option>
-                        <option value="C++ Programming">C++ Programming</option>
-                    </select>
-                
-                    <label>Labs: </label>
-                    <select name="labs">
-                        <option value="524">524</option>
-                        <option value="544">544</option>
-                        <option value="542">542</option>
-                        <option value="MAC Laboratory">MAC Laboratory</option>
-                    </select>
-                
-                    <label>Remaining Sessions: </label>
-                    <input type="number" readonly value="<?php echo $_SESSION['sessions']?>">
-
-                    <div class="sit-in-closebtn">
-                        <input type="submit" name="sit-in" vaue="Submit">
-                    </div>
-        </form>
-    </div>
-
-</div>
-
-<div id="search-bg">
-    <div class="search-container" style="display:none" id="search-container">
-        <div class="search-content" method="get">
-            <form action="searchdb.php" >
-                <div class="search-closebtn" id="search-closebtn">
-                    <button onclick="searchclosebtn()" type="button">X</button>
-                </div>
-                <h1>Search ID number</h1>
-                <input name="idnum" type="number" placeholder="Idno">
-            </form>
-        </div>
-    </div>
-</div>
-
-<?php
-    if(isset($_GET['success']) && $_GET['success'] == 1){
-        echo "<script>
-            window.onload = ()=>{
-                const registerModal = document.getElementById('register-modal');    
-                registerModal.style.display = 'block';
-            };
-        </script>";
-    }
-?>
-
-    <div class="register-modal" style="display:none" id="register-modal">
-        <div class="register-modal-content">
-            <img src="check.png" alt="check" class="check-logo">
-            <h3>Success</h3>
-            <p>Welcome to dashboard</p>
-            <button class="confirm-btn" id="confirm-btn">Confirm</button>
-        </div>
-    </div>
 
 <div class="pie-chart-space">
     <div id="piechart-container">
-        <div id="piechart"></div> 
+        <div id="piechart"></div>
     </div>
     <div id="piechart-container">
-        <div id="piechart2"></div> 
+        <div id="piechart2"></div>
     </div>
 </div>
 
+<input type="text" id="searchInput" placeholder="Search by ID or Name...">
 
-</body>
+<div class="export-buttons">
+    <button onclick="exportTableToCSV('sit_in_full_records.csv')">Export to CSV</button>
+    <button onclick="exportTableToExcel('sit_in_full_records.xls')">Export to Excel</button>
+    <button onclick="exportTableToPDF()">Export to PDF</button>
+    <button onclick="exportToWord()">Export to Word</button>
+    <button onclick="exportAllToCSV('sit_in_full_records.csv')">Export All Records (CSV)</button>
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th>Sit-in Number</th>
+            <th>ID Number</th>
+            <th>Name</th>
+            <th>Purpose</th>
+            <th>Lab</th>
+            <th>Login</th>
+            <th>Logout</th>
+            <th>Date</th>
+        </tr>
+    </thead>
+    <tbody>
+    <?php
+        while ($row = mysqli_fetch_assoc($result_records)) {
+            echo "<tr>
+                    <td>{$row['id']}</td>
+                    <td>{$row['student_id']}</td>
+                    <td>{$row['student_name']}</td>
+                    <td>{$row['purpose']}</td>
+                    <td>{$row['lab']}</td>
+                    <td>{$row['login_time']}</td>
+                    <td>{$row['logout_time']}</td>
+                    <td>{$row['date_removed']}</td>
+                </tr>";
+        }
+    ?>
+    </tbody>
+</table>
 
 <script>
-    const logoutbtn = document.getElementById('logoutbtn');
-    const menuIcon = document.getElementById('menu-icon');
-    const navLinks = document.getElementById('nav-links');
-    const homeNav = document.getElementById('home-nav');
-    const confirmbtn = document.getElementById('confirm-btn');
-    const registerModal = document.getElementById('register-modal');
-    const sitIn = document.getElementById('sit-in');
-    const searchBtn = document.getElementById('search-btn');
-    const searchContainer = document.getElementById('search-container');
-    const searchbg = document.getElementById('search-bg');
-    const searchClosebtn = document.getElementById('search-closebtn');
+document.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.getElementById("searchInput");
+    const tableRows = document.querySelectorAll("table tbody tr");
 
-    function searchclosebtn(){
-        searchClosebtn.addEventListener("click", ()=> {
-            searchbg.style.display = "none";
-            searchContainer.style.display = "none";
+    searchInput.addEventListener("keyup", function () {
+        const input = this.value.toLowerCase();
+
+        tableRows.forEach(row => {
+            const idCell = row.cells[1]; // ID Number is the second column (index 1)
+            const nameCell = row.cells[2]; // Name is the third column (index 2)
+
+            if (idCell && nameCell) {
+                const idText = idCell.innerText.toLowerCase();
+                const nameText = nameCell.innerText.toLowerCase();
+                row.style.display = (idText.includes(input) || nameText.includes(input)) ? "" : "none";
+            } else {
+                console.error("Error: Could not find ID or Name cell in row:", row);
+            }
         });
-    }
-
-    searchclosebtn();
-
-    menuIcon.addEventListener("click", ()=>{
-        navLinks.classList.toggle("active");
     });
+});
 
-    homeNav.addEventListener("click", ()=>{
-        window.location.href = "admindashboard.php";
-    });
+google.charts.load('current', {'packages':['corechart', 'charteditor']});
+google.charts.setOnLoadCallback(drawCharts);
 
-    confirmbtn.addEventListener("click", ()=> {
-        registerModal.style.display = "none";
-    });
-    
-    function searchFunction(){
-        searchBtn.addEventListener("click", ()=>{
-            searchContainer.style.display = "block";
-            searchbg.style.display = "block"
-        });
-    }
-
-    searchFunction();
-
-    
-
-    window.onload = function(){
-        const urlParams = new URLSearchParams(window.location.search);
-        if(urlParams.has('idnum')){
-            sitIn.style.display = "block";
+function drawCharts() {
+    var data_purpose = google.visualization.arrayToDataTable([
+        ['Purpose', 'Number'],
+        <?php
+        mysqli_data_seek($result_purpose, 0);
+        while($row = mysqli_fetch_array($result_purpose)){
+            echo "['".$row["purpose"]."', ".$row["number"]."], ";
         }
+        ?>
+    ]);
+
+    var options_purpose = {
+        title: 'Sit-in Purposes Distribution',
+        is3D: true,
+        pieSliceText: 'percentage',
+        legend: { position: 'bottom' },
+        colors: ['#ff6f61', '#6b8e23', '#8a2be2']
+    };
+
+    var chart_purpose = new google.visualization.PieChart(document.getElementById('piechart'));
+    chart_purpose.draw(data_purpose, options_purpose);
+
+    var data_labs = google.visualization.arrayToDataTable([
+        ['Labs', 'Number'],
+        <?php
+        mysqli_data_seek($result_labs, 0);
+        while($row = mysqli_fetch_array($result_labs)){
+            echo "['".$row["labs"]."', ".$row["number"]."], ";
+        }
+        ?>
+    ]);
+
+    var options_labs = {
+        title: 'Sit-in Labs Distribution',
+        is3D: true,
+        pieSliceText: 'percentage',
+        legend: { position: 'bottom' },
+        colors: ['#ff6f61', '#6b8e23', '#8a2be2']
+    };
+
+    var chart_labs = new google.visualization.PieChart(document.getElementById('piechart2'));
+    chart_labs.draw(data_labs, options_labs);
+}
+
+function download(filename, text) {
+    const element = document.createElement('a');
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    element.setAttribute('download', filename);
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+}
+
+function getAllTableData() {
+    const tableData = <?php echo json_encode($all_records); ?>;
+    const headers = Object.keys(tableData[0] || {});
+    const data = tableData.map(row => Object.values(row));
+    return [headers, ...data];
+}
+
+function exportTableToCSV(filename) {
+    const fullData = getAllTableData();
+    const csvRows = fullData.map(row => row.join(",")).join("\n");
+    download(filename, csvRows);
+}
+
+function exportAllToCSV(filename) { // Keeping the explicit "Export All" button
+    const fullData = getAllTableData();
+    const csvRows = fullData.map(row => row.join(",")).join("\n");
+    download(filename, csvRows);
+}
+
+function exportTableToExcel(filename) {
+    const fullData = getAllTableData();
+    let html = `<table border="1"><tr><th>${fullData[0].join("</th><th>")}</th></tr>`;
+    for (let i = 1; i < fullData.length; i++) {
+        html += `<tr><td>${fullData[i].join("</td><td>")}</td></tr>`;
     }
+    html += `</table>`;
+    const uri = 'data:application/vnd.ms-excel;base64,' + btoa(unescape(encodeURIComponent(html)));
+    const link = document.createElement("a");
+    link.href = uri;
+    link.download = filename;
+    document.body.appendChild(link);
+    document.body.removeChild(link);
+}
+
+function exportTableToPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    const fullData = getAllTableData();
+    const head = [fullData[0]];
+    const body = fullData.slice(1);
+    doc.autoTable({ head: head, body: body });
+    doc.save('sit_in_full_records.pdf');
+}
+
+function exportToWord() {
+    const fullData = getAllTableData();
+    let tableHTML = `<table border="1"><tr><th>${fullData[0].join("</th><th>")}</th></tr>`;
+    for (let i = 1; i < fullData.length; i++) {
+        tableHTML += `<tr><td>${fullData[i].join("</td><td>")}</td></tr>`;
+    }
+    tableHTML += `</table>`;
+    const blob = new Blob(['<html><head><meta charset="utf-8"></head><body>' + tableHTML + '</body></html>'], {
+        type: 'application/msword'
+    });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'sit_in_full_records.doc';
+    link.click();
+}
 </script>
+</body>
 </html>

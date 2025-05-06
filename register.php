@@ -51,7 +51,7 @@
 <div class="background-overlay"></div>
 <div class="register-modal" style="display:none" id="register-modal">
     <div class="register-modal-content">
-        <img src="check.png" alt="check" class="check-logo">
+        <img src="assets/check.png" alt="check" class="check-logo">
         <h3>Success</h3>
         <p>Your account has been successfully created</p>
         <button class="confirm-btn" id="confirm-btn">Confirm</button>

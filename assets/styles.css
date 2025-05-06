@@ -112,15 +112,37 @@ label{
     font-weight: bold;
 }
 
-table{
+table {
     width: 100%;
     margin-top: 15px;
-    text-align: center;
+    border-collapse: collapse;
+    text-align: left; /* Align text to left for better readability */
 }
 
-th, td{
-    text-align: center;
+th, td {
+    padding: 12px;
+    text-align: left;
 }
+
+th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+}
+
+tr {
+    border-bottom: 1px solid #ddd; /* Only horizontal lines */
+}
+
+tr:hover {
+    background-color: #f9f9f9; /* Subtle hover effect */
+}
+
+thead tr th{
+    background-color: rgb(32, 101, 220);
+    color: white;
+}
+
+
 
 .login-idno, .login-password{
     text-align: left;
@@ -146,13 +168,10 @@ nav a{
     color: white;
     margin-right: 17px;
     font-weight: bold;
-    font-size: 18px;
+    font-size: 15px;
     transition: color 0.3s ease-in, text-decoration 0.3s ease-in-out;
     display: inline-block; 
     white-space: normal;
-    word-wrap: break-word; 
-    overflow-wrap: break-word;
-    max-width: 110px;
 }
 
 nav a:hover{
@@ -191,6 +210,7 @@ p, h4, h3{
     margin: 10px auto;
     border-radius: 10px;
     box-shadow: 5px 10px gray;
+    overflow-y: scroll;
 }
 
 .announcement-container-admin{
@@ -324,7 +344,7 @@ p, h4, h3{
     padding: 18px;
     border-radius: 10px;
     width: 200%;
-    box-shadow: 5px 5px 3px 3px gray;
+    box-shadow: 0px 0px 3px 1px gray inset;
 }
 
 .modal-content-reservation form input,
@@ -420,6 +440,139 @@ td{
     height: 30px;
 }
 
+.announcement-form{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content-reservation input[type="button"]{
+    cursor:pointer;
+    width: 10%;
+    border: none;
+    background-color: rgb(236, 29, 29);
+    color: white;
+}
+
+.reservation-btn{
+    text-align: end;
+}
+
+.announcement-submitbtn{
+    border:none;
+    padding: 12px;
+    background-color: rgb(32, 213, 32);
+    cursor: pointer;
+    color: white;
+    border-radius: 8px;
+}
+
+.removebtn{
+    padding: 10px;
+    border-radius: 5px;
+    border: none;
+    background-color: red;
+    color: white;
+    cursor: pointer;
+}
+.edit-modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.edit-modal-content {
+    background-color: #fff;
+    margin: 10% auto;
+    padding: 20px;
+    width: 90%;
+    max-width: 500px;
+    border-radius: 12px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.edit-close-btn {
+    float: right;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* Modal styles */
+.modal-container-edit {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+}
+
+.modal-content-edit {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 80%;
+    max-width: 600px;
+    position: relative;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.close-btn {
+    font-size: 30px;
+    cursor: pointer;
+    color: #aaa;
+}
+
+.modal-body {
+    margin-top: 20px;
+}
+
+textarea {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    resize: none;
+}
+
+.modal-footer {
+    margin-top: 20px;
+    text-align: right;
+}
+
+.modal-footer input {
+    background-color: #06d6a0;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.modal-footer input:hover {
+    background-color: #118a7e;
+}
+
+
 @media screen and (max-width: 600px){
     nav .nav-links{
         display: none;
@@ -478,3 +631,5 @@ td{
         width: 65%;
     }
 }
+
+
