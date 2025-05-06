@@ -2,73 +2,62 @@
 // Include database connection (assuming you have a db.php file)
 include 'db.php';
 
-// Configuration
-$upload_dir = 'uploads/'; // Directory to store uploaded files
-$max_file_size = 10 * 1024 * 1024; // 10MB limit
+$upload_dir = 'uploads/';
+$max_file_size = 10 * 1024 * 1024;
 $allowed_types = ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'txt', 'zip', 'rar', 'jpg', 'jpeg', 'png'];
 
-// Helper function to get file extension
 function getFileExtension($filename) {
     return strtolower(pathinfo($filename, PATHINFO_EXTENSION));
 }
 
-// Function to handle file uploads
-function handleFileUpload($file, $upload_dir, $max_file_size, $allowed_types) {
-    if ($file['error'] == UPLOAD_ERR_OK) {
-        if ($file['size'] > $max_file_size) {
-            return ['error' => 'File size exceeds the limit.'];
-        }
+function handleFileUpload($file, $upload_dir, $max_file_size, $allowed_types)
+{
+    if ($file['error'] === UPLOAD_ERR_OK) {
+        $original_name = basename($file['name']);
+        $file_ext = strtolower(pathinfo($original_name, PATHINFO_EXTENSION));
+        $file_size = $file['size'];
 
-        $file_ext = getFileExtension($file['name']);
         if (!in_array($file_ext, $allowed_types)) {
-            return ['error' => 'Invalid file type. Allowed types: ' . implode(', ', $allowed_types)];
+            return ['error' => 'Invalid file type.'];
         }
 
-        $new_file_name = uniqid() . '.' . $file_ext;
-        $file_path = $upload_dir . $new_file_name;
+        if ($file_size > $max_file_size) {
+            return ['error' => 'File is too large. Maximum allowed size is 10MB.'];
+        }
 
-        if (move_uploaded_file($file['tmp_name'], $file_path)) {
-            return ['success' => true, 'file_path' => $file_path, 'file_name' => $new_file_name, 'original_name' => $file['name']];
+        $new_name = uniqid() . '.' . $file_ext;
+        $destination = $upload_dir . $new_name;
+
+        if (move_uploaded_file($file['tmp_name'], $destination)) {
+            return ['success' => true, 'file_name' => $new_name, 'original_name' => $original_name, 'file_path' => $destination];
         } else {
-            return ['error' => 'Failed to upload file.'];
+            return ['error' => 'Failed to move uploaded file.'];
         }
-    } elseif ($file['error'] != UPLOAD_ERR_NO_FILE) { //handle other errors except when no file is uploaded
-        return ['error' => 'Upload error: ' . $file['error']];
+    } else {
+        return ['error' => 'File upload error.'];
     }
-    return ['success' => true]; // Return success even if no file, handle the rest in main code
 }
-// Handle form submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+// ADD resource
+if (isset($_POST['add'])) {
     $title = $_POST['title'];
     $description = $_POST['description'];
     $status = $_POST['status'];
-    $link = $_POST['link']; // Get the link from the form
+    $link = trim($_POST['link']) ?: null;
 
-    // Handle file upload
     $upload_result = handleFileUpload($_FILES['file'], $upload_dir, $max_file_size, $allowed_types);
 
     if (isset($upload_result['error'])) {
-        echo "<script>alert('" . $upload_result['error'] . "');</script>";
-        //redirect back to the form
-        echo "<script>window.location.href='lab_resources.php';</script>";
+        echo "<script>alert('" . $upload_result['error'] . "'); window.location.href='lab_resources.php';</script>";
         exit;
     }
 
     if ($upload_result['success']) {
-        $file_name = $upload_result['file_name'] ?? null; //important to set null if no file
-        $original_name = $upload_result['original_name'] ?? null;
-        $file_path = $upload_result['file_path'] ?? null;
-
-        // Insert data into the database
-        $stmt = $connection->prepare("INSERT INTO lab_resources (title, description, file_name, original_name, file_path, status, link) VALUES (?, ?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param("sssssss", $title, $description, $file_name, $original_name, $file_path, $status, $link);  // Include $link
+        $stmt = $connection->prepare("INSERT INTO lab_resources (title, description, status, link, file_name, original_name, file_path) VALUES (?, ?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param("sssssss", $title, $description, $status, $link, $upload_result['file_name'], $upload_result['original_name'], $upload_result['file_path']);
 
         if ($stmt->execute()) {
-            echo "<script>alert('Resource uploaded successfully!');</script>";
-            //redirect back to the form
-            echo "<script>window.location.href='lab_resources.php';</script>";
-            exit;
-
+            echo "<script>alert('Resource added successfully!'); window.location.href='lab_resources.php';</script>";
         } else {
             echo "Error: " . $stmt->error;
         }
@@ -76,59 +65,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Handle delete
-if (isset($_GET['delete'])) {
-    $id = $_GET['delete'];
+// EDIT resource
+if (isset($_POST['edit'])) {
+    $id = $_POST['edit_id'];
+    $title = $_POST['edit_title'];
+    $description = $_POST['edit_description'];
+    $status = $_POST['edit_status'];
+    $link = trim($_POST['edit_link']) ?: null;
 
-    // Retrieve file path for deletion
-    $stmt = $connection->prepare("SELECT file_path FROM lab_resources WHERE id = ?");
-    $stmt->bind_param("i", $id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $row = $result->fetch_assoc();
-    $file_path = $row['file_path'];
-    $stmt->close();
+    if ($_FILES['edit_file']['error'] === UPLOAD_ERR_OK) {
+        $upload_result = handleFileUpload($_FILES['edit_file'], $upload_dir, $max_file_size, $allowed_types);
+        if (isset($upload_result['error'])) {
+            echo "<script>alert('" . $upload_result['error'] . "'); window.location.href='lab_resources.php';</script>";
+            exit;
+        }
 
-    // Delete the record from the database
-    $stmt = $connection->prepare("DELETE FROM lab_resources WHERE id = ?");
-    $stmt->bind_param("i", $id);
+        $stmt = $connection->prepare("UPDATE lab_resources SET title = ?, description = ?, status = ?, link = ?, file_name = ?, original_name = ?, file_path = ? WHERE id = ?");
+        $stmt->bind_param("sssssssi", $title, $description, $status, $link, $upload_result['file_name'], $upload_result['original_name'], $upload_result['file_path'], $id);
+    } else {
+        $stmt = $connection->prepare("UPDATE lab_resources SET title = ?, description = ?, status = ?, link = ? WHERE id = ?");
+        $stmt->bind_param("ssssi", $title, $description, $status, $link, $id);
+    }
 
     if ($stmt->execute()) {
-        // Delete the file if it exists
-        if ($file_path && file_exists($file_path)) {
-            unlink($file_path);
-        }
-        echo "<script>alert('Resource deleted successfully!');</script>";
-        //redirect back to the form
-        echo "<script>window.location.href='lab_resources.php';</script>";
-        exit;
+        echo "<script>alert('Resource updated successfully!'); window.location.href='lab_resources.php';</script>";
+    } else {
+        echo "Error: " . $stmt->error;
+    }
+    $stmt->close();
+}
+
+// DELETE resource (use GET since it's triggered via URL)
+if (isset($_GET['delete'])) {
+    $id = $_GET['delete'];
+    $stmt = $connection->prepare("DELETE FROM lab_resources WHERE id = ?");
+    $stmt->bind_param("i", $id);
+    if ($stmt->execute()) {
+        echo "<script>alert('Resource deleted successfully!'); window.location.href='lab_resources.php';</script>";
     } else {
         echo "Error deleting record: " . $stmt->error;
     }
     $stmt->close();
 }
 
-// Handle edit
-if (isset($_POST['edit'])) {
-    $id = $_POST['edit_id'];
-    $title = $_POST['edit_title'];
-    $description = $_POST['edit_description'];
-    $status = $_POST['edit_status'];
-    $link = $_POST['edit_link']; // Get the edited link
+$result = $connection->query("SELECT * FROM lab_resources ORDER BY id DESC");
+$resources = $result->fetch_all(MYSQLI_ASSOC);
 
-    $stmt = $connection->prepare("UPDATE lab_resources SET title = ?, description = ?, status = ?, link = ? WHERE id = ?"); // Include link in update
-    $stmt->bind_param("ssssi", $title, $description, $status, $link, $id); //bind link
-
-    if ($stmt->execute()) {
-        echo "<script>alert('Resource updated successfully!');</script>";
-        //redirect back to the form
-        echo "<script>window.location.href='lab_resources.php';</script>";
-        exit;
-    } else {
-        echo "Error updating record: " . $stmt->error;
-    }
-    $stmt->close();
-}
 
 // Fetch all resources from the database
 $result = $connection->query("SELECT * FROM lab_resources ORDER BY id DESC");
@@ -266,7 +248,7 @@ $resources = $result->fetch_all(MYSQLI_ASSOC);
                     <option value="disabled">Disabled</option>
                 </select>
             </div>
-            <button type="submit" class="btn btn-primary">Upload</button>
+            <button type="submit" class="btn btn-primary" name="add">Upload</button>
         </form>
 
         <h2>Lab Resources</h2>
@@ -292,7 +274,7 @@ $resources = $result->fetch_all(MYSQLI_ASSOC);
                         <button class="btn btn-sm edit-btn" data-toggle="modal" data-target="#editModal<?php echo $resource['id']; ?>">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button class="btn btn-sm delete-btn" onclick="if(confirm('Are you sure you want to delete this resource?')) { window.location.href='lab_resources.php?delete=<?php echo $resource['id']; ?>'; }">
+                        <button class="btn btn-sm delete-btn" name="delete"  onclick="if(confirm('Are you sure you want to delete this resource?')) { window.location.href='lab_resources.php?delete=<?php echo $resource['id']; ?>'; }">
                             <i class="fas fa-trash"></i>
                         </button>
                         <?php if ($resource['file_name']): ?>
