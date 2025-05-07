@@ -24,7 +24,7 @@ $labs = [
             display: grid; 
             grid-template-columns: repeat(auto-fill, 120px); 
             gap: 15px; 
-            margin-top: 20px;
+            margin-top: 100px;
         }
 
         .pc-item {
@@ -74,8 +74,22 @@ $labs = [
             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
         }
 
+        h2{
+            text-align: center;
+        }
+
+        #labSelect{
+            position: absolute;
+            left: 50%;
+            top: 30%;
+            transform: translate(-50%, -50%);
+        }
+
+        
+
     </style>
 </head>
+<body>
 <nav>
     <h1>CCS Admin</h1>
     <div class="menu-icon" id="menu-icon">☰</div>
@@ -94,7 +108,6 @@ $labs = [
         <a href="admin.php" class="logout-btn" id="logoutbtn"> Log out </a>
     </div> 
 </nav>
-<body>
     <h2>Computer Control Panel</h2>
 
     <select id="labSelect" onchange="loadComputers()">
@@ -111,14 +124,14 @@ $labs = [
             const labId = document.getElementById("labSelect").value;
             if (!labId) return;
 
-            // Simulating fetching 30 PCs for each lab (Lab1, Lab2, Lab3, Lab4)
+            // Simulating fetching 30 PCs for each lab (Lab1, Lab2, Lab3, Lab4), all set to 'offline'
             const totalPCs = 30;
             const computers = [];
             for (let i = 1; i <= totalPCs; i++) {
                 computers.push({
                     id: i,
                     pc_number: i,
-                    status: i % 4 === 0 ? 'in_use' : i % 3 === 0 ? 'maintenance' : 'available'  // Example status
+                    status: 'offline'  // Set all computers to "offline" by default
                 });
             }
 
@@ -139,7 +152,7 @@ $labs = [
 
                 const statusLabel = document.createElement("div");
                 statusLabel.className = "status-label";
-                statusLabel.innerText = pc.status === "available" ? "Offline" : pc.status.charAt(0).toUpperCase() + pc.status.slice(1);
+                statusLabel.innerText = "Offline";  // Label for offline status
 
                 div.appendChild(pcIcon);
                 div.appendChild(pcNumber);
