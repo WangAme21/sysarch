@@ -8,12 +8,13 @@
     <div class="menu-icon" id="menu-icon">☰</div>
     <div class="nav-links" id="nav-links">
         <a href=""> Notification</a>
-        <a id="home-nav" href="#"> Home</a>
+        <a id="home-nav" href="dashboard.php"> Home</a>
         <a href="editprofile.php"> Edit Profile</a>
         <a href="sitin-history.php">Sit-in History</a>
         <a href="reservation.php"> Reservation</a>
         <a href="lab_schedule_student.php">Lab Schedules</a>
         <a href="lab_resources_view.php">Lab Resources</a>
+        <a href="view_points.php">View Points</a>
         <a href="index.php" class="logout-btn" id="logoutbtn"> Log out </a>
     </div> 
 </nav>

@@ -166,7 +166,7 @@ nav h1{
 nav a{
     text-decoration: none;
     color: white;
-    margin-right: 17px;
+    margin-right: 10px;
     font-weight: bold;
     font-size: 15px;
     transition: color 0.3s ease-in, text-decoration 0.3s ease-in-out;

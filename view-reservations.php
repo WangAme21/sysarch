@@ -23,7 +23,7 @@ $result = mysqli_query($connection, $query);
     <style>
         body {
             background-color: #f3f7f9;
-            font-family: Arial, sans-serif;
+            font-family:  sans-serif;
         }
         h2 {
             text-align: center;
@@ -99,13 +99,14 @@ $result = mysqli_query($connection, $query);
         <a id="home-nav" href="admindashboard.php"> Home</a>
         <a href="#" onclick="searchFunction()" id="search-btn"> Search Students</a>
         <a href="current-sit-in.php"> Sit-in</a>
-        <a href="view-sit-in-records.php">View Sit-in Records</a>
+        <a href="view-sit-in-records.php">Sit-in Records</a>
         <a href="sit-in-reports.php"> Sit-in Reports</a>
         <a href="feedback-reports.php"> Feedback Reports</a>   
         <a href="view-reservations.php">Reservation</a>
         <a href="student_management.php">Student Info</a>
         <a href="lab_schedule.php">Lab Schedule</a>
         <a href="lab_resources.php">Lab Resources</a>
+        <a href="admin_computer_control.php">PC Control</a>
         <a href="admin.php" class="logout-btn" id="logoutbtn"> Log out </a>
     </div> 
 </nav>

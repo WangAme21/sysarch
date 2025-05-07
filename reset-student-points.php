@@ -1,14 +1,23 @@
 <?php
 include('db.php');
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['idno'])) {
+if (isset($_POST['reset_points'])) {
     $idno = $_POST['idno'];
-    $query = "UPDATE userstbl SET points = 0 WHERE idno = ?";
-    $stmt = $connection->prepare($query);
+
+    // Reset points to 0 (or another base value)
+    $resetPointsQuery = "UPDATE userstbl SET points = 0 WHERE idno = ?";
+    $stmt = $connection->prepare($resetPointsQuery);
     $stmt->bind_param("s", $idno);
     $stmt->execute();
-}
 
-header("Location: student_management.php");
-exit();
+    // Reset sessions and claimed rewards
+    $resetSessionQuery = "UPDATE userstbl SET claimed_rewards = 0 WHERE idno = ?";
+    $stmt = $connection->prepare($resetSessionQuery);
+    $stmt->bind_param("s", $idno);
+    $stmt->execute();
+
+    // Redirect after resetting
+    header("Location: student_management.php");
+    exit();
+}
 ?>

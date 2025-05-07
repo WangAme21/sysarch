@@ -67,6 +67,7 @@
         <a href="student_management.php">Student Info</a>
         <a href="lab_schedule.php">Lab Schedule</a>
         <a href="lab_resources.php">Lab Resources</a>
+        <a href="admin_computer_control.php">PC Control</a>
         <a href="admin.php" class="logout-btn" id="logoutbtn">Log out</a>
     </div>
 </nav>

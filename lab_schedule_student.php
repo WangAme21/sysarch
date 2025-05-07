@@ -143,6 +143,7 @@ if ($conn->connect_error) {
         <a href="reservation.php"> Reservation</a>
         <a href="lab_schedule_student.php">Lab Schedules</a>
         <a href="lab_resources_view.php">Lab Resources</a>
+        <a href="view_points.php">View Points</a>
         <a href="#" class="logout-btn" id="logoutbtn"> Log out </a>
     </div> 
 </nav>

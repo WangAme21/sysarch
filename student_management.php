@@ -29,10 +29,36 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_points'])) {
 
     // Ensure points is a number
     if (is_numeric($points)) {
+        // Update points
         $updatePointsQuery = "UPDATE userstbl SET points = points + ? WHERE idno = ?";
         $stmt = $connection->prepare($updatePointsQuery);
         $stmt->bind_param("is", $points, $idno);
         $stmt->execute();
+
+        // Fetch the user's new points and session info
+        $sessionUpdateQuery = "SELECT points, claimed_rewards, sessions FROM userstbl WHERE idno = ?";
+        $stmt = $connection->prepare($sessionUpdateQuery);
+        $stmt->bind_param("s", $idno);
+        $stmt->execute();
+        $stmt->bind_result($totalPoints, $claimedRewards, $sessions);
+        $stmt->fetch();
+        $stmt->close();
+
+        // Calculate newly earned rewards based on the total points
+        $newRewards = floor($totalPoints / 3);
+        $newlyEarned = $newRewards - $claimedRewards;
+
+        // Add new sessions if the user has earned any new rewards
+        if ($newlyEarned > 0) {
+            $sessions += $newlyEarned;
+            $claimedRewards = $newRewards;
+
+            // Update sessions and claimed rewards in the database
+            $sessionUpdateQuery = "UPDATE userstbl SET sessions = ?, claimed_rewards = ? WHERE idno = ?";
+            $stmt = $connection->prepare($sessionUpdateQuery);
+            $stmt->bind_param("iis", $sessions, $claimedRewards, $idno);
+            $stmt->execute();
+        }
 
         // Redirect to avoid form resubmission
         header("Location: student_management.php");
@@ -41,6 +67,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_points'])) {
         $errorMessage = "Points must be a valid number.";
     }
 }
+
+
 ?>
 
 <!DOCTYPE html>
@@ -130,6 +158,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_points'])) {
         <a href="student_management.php">Student Info</a>
         <a href="lab_schedule.php">Lab Schedule</a>
         <a href="lab_resources.php">Lab Resources</a>
+        <a href="admin_computer_control.php">PC Control</a>
         <a href="admin.php" class="logout-btn" id="logoutbtn"> Log out </a>
     </div> 
 </nav>
@@ -194,7 +223,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_points'])) {
 
                 <form method="post" action="reset-student-points.php" style="display:inline;">
                     <input type="hidden" name="idno" value="<?= $row['idno'] ?>">
-                    <button type="submit" class="btn danger">Reset Points</button>
+                    <button type="submit" name="reset_points" class="btn danger">Reset Points</button>
                 </form>
             </td>
         </tr>
