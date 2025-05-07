@@ -8,8 +8,8 @@ if (isset($_POST['id']) && isset($_POST['status'])) {
     $status = $_POST['status'];
 
     if ($status === 'Accepted') {
-        // Get the id_number from reservations
-        $queryUser = "SELECT id_number FROM reservations WHERE id = ?";
+        // Get the id_number, lab, and pc_number from reservations
+        $queryUser = "SELECT id_number, lab, pc_number FROM reservations WHERE id = ?";
         $stmtUser = $connection->prepare($queryUser);
 
         if (!$stmtUser) {
@@ -23,8 +23,10 @@ if (isset($_POST['id']) && isset($_POST['status'])) {
         if ($resultUser->num_rows > 0) {
             $user = $resultUser->fetch_assoc();
             $idNumber = $user['id_number'];
+            $lab = $user['lab'];
+            $pcNumber = $user['pc_number'];
 
-            // Use idno instead of id_number here
+            // Decrease the session count for the user
             $decrementQuery = "UPDATE userstbl SET sessions = GREATEST(sessions - 1, 0) WHERE idno = ?";
             $stmtDecrement = $connection->prepare($decrementQuery);
 
@@ -50,7 +52,7 @@ if (isset($_POST['id']) && isset($_POST['status'])) {
 
             $_SESSION['sessions'] = $userSessions['sessions'];
 
-            // ✅ Update remaining_session in reservations
+            // ✅ Update remaining_session and reservation status
             $updateRemaining = "UPDATE reservations SET remaining_session = ?, status = 'Accepted' WHERE id = ?";
             $stmtRemaining = $connection->prepare($updateRemaining);
 
@@ -60,6 +62,17 @@ if (isset($_POST['id']) && isset($_POST['status'])) {
 
             $stmtRemaining->bind_param("ii", $userSessions['sessions'], $id);
             $stmtRemaining->execute();
+
+            // ✅ Update PC status to 'online'
+            $updatePCStatus = "UPDATE pc_status SET status = 'online' WHERE lab = ? AND pc_number = ?";
+            $stmtUpdatePC = $connection->prepare($updatePCStatus);
+
+            if (!$stmtUpdatePC) {
+                die('Prepare failed (update pc_status): ' . $connection->error);
+            }
+
+            $stmtUpdatePC->bind_param("si", $lab, $pcNumber);
+            $stmtUpdatePC->execute();
 
             // Store the student in sit_in_students session
             if (!isset($_SESSION['sit_in_students'])) {

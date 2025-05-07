@@ -1,10 +1,12 @@
 <?php
 // Simulating a list of labs (Lab1, Lab2, Lab3, Lab4)
 $labs = [
-    ['id' => 1, 'name' => 'Lab1'],
-    ['id' => 2, 'name' => 'Lab2'],
-    ['id' => 3, 'name' => 'Lab3'],
-    ['id' => 4, 'name' => 'Lab4']
+    ['id' => 1, 'name' => 'Lab524'],
+    ['id' => 2, 'name' => 'Lab544'],
+    ['id' => 3, 'name' => 'Lab542'],
+    ['id' => 4, 'name' => 'Lab530'],
+    ['id' => 3, 'name' => 'Lab528'],
+    ['id' => 3, 'name' => 'Lab526'],
 ];
 ?>
 

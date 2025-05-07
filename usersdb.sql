@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 07, 2025 at 03:41 AM
+-- Generation Time: May 07, 2025 at 04:02 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -175,6 +175,19 @@ INSERT INTO `lab_schedules` (`id`, `title`, `description`, `start_date`, `end_da
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `pc_status`
+--
+
+CREATE TABLE `pc_status` (
+  `id` int(11) NOT NULL,
+  `lab` varchar(50) DEFAULT NULL,
+  `pc_number` int(11) DEFAULT NULL,
+  `status` enum('offline','online') DEFAULT 'offline'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `reservations`
 --
 
@@ -188,21 +201,24 @@ CREATE TABLE `reservations` (
   `date` date DEFAULT NULL,
   `remaining_session` int(11) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `status` varchar(20) DEFAULT 'Pending'
+  `status` varchar(20) DEFAULT 'Pending',
+  `pc_number` varchar(10) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `reservations`
 --
 
-INSERT INTO `reservations` (`id`, `id_number`, `student_name`, `purpose`, `lab`, `time_in`, `date`, `remaining_session`, `created_at`, `status`) VALUES
-(6, '15', 'John Aries Rizada', 'C programming', '530', '08:48:00', '2025-04-07', 25, '2025-04-30 00:48:31', 'Accepted'),
-(7, '15', 'John Aries Rizada', 'php progrmaming', '540', '14:12:00', '2025-05-04', 26, '2025-05-04 06:12:31', 'Accepted'),
-(8, '15', 'John Aries Rizada', 'java programming', '540', '22:19:00', '2025-05-04', 27, '2025-05-04 14:19:52', 'Accepted'),
-(9, '11', 'bravo alpha', 'C programming', '530', '22:36:00', '2025-05-04', 29, '2025-05-04 14:36:09', 'Accepted'),
-(10, '333', 'sdfasdf sdfasf', 'C programming', '530', '22:43:00', '2025-05-04', 28, '2025-05-04 14:43:28', 'Accepted'),
-(11, '2222', 'asdfasdf dfasdf', 'C programming', '530', '22:45:00', '2025-05-04', 23, '2025-05-04 14:45:13', 'Accepted'),
-(12, '15', 'John Aries Rizada', 'php programming', '544', '13:02:00', '2025-02-01', 28, '2025-05-06 22:45:48', 'Accepted');
+INSERT INTO `reservations` (`id`, `id_number`, `student_name`, `purpose`, `lab`, `time_in`, `date`, `remaining_session`, `created_at`, `status`, `pc_number`) VALUES
+(6, '15', 'John Aries Rizada', 'C programming', '530', '08:48:00', '2025-04-07', 25, '2025-04-30 00:48:31', 'Accepted', ''),
+(7, '15', 'John Aries Rizada', 'php progrmaming', '540', '14:12:00', '2025-05-04', 26, '2025-05-04 06:12:31', 'Accepted', ''),
+(8, '15', 'John Aries Rizada', 'java programming', '540', '22:19:00', '2025-05-04', 27, '2025-05-04 14:19:52', 'Accepted', ''),
+(9, '11', 'bravo alpha', 'C programming', '530', '22:36:00', '2025-05-04', 29, '2025-05-04 14:36:09', 'Accepted', ''),
+(10, '333', 'sdfasdf sdfasf', 'C programming', '530', '22:43:00', '2025-05-04', 28, '2025-05-04 14:43:28', 'Accepted', ''),
+(11, '2222', 'asdfasdf dfasdf', 'C programming', '530', '22:45:00', '2025-05-04', 23, '2025-05-04 14:45:13', 'Accepted', ''),
+(12, '15', 'John Aries Rizada', 'php programming', '544', '13:02:00', '2025-02-01', 28, '2025-05-06 22:45:48', 'Accepted', ''),
+(13, '15', 'John Aries Rizada', 'Java Programming', '542', '09:52:00', '2025-05-07', 24, '2025-05-07 01:53:49', 'Accepted', '11'),
+(14, '11', 'bravo alpha', 'Java Programming', '524', '10:01:00', '2025-05-07', 27, '2025-05-07 02:01:55', 'Accepted', '1');
 
 -- --------------------------------------------------------
 
@@ -369,8 +385,8 @@ CREATE TABLE `userstbl` (
 --
 
 INSERT INTO `userstbl` (`idno`, `lastname`, `firstname`, `middlename`, `email`, `course`, `level`, `password`, `sessions`, `labs`, `purpose`, `date_login`, `login_date`, `status`, `points`, `claimed_rewards`) VALUES
-(15, 'Rizada', 'John Aries', 'Canama', 'rizadajohn5@gmail.com', 'BSIT', 3, 'admin', 26, '524', 'C Programming', '2025-03-18', '02:40:07', 'Completed', 10, 3),
-(11, 'alpha', 'bravo', 'cat', 'cat@gmail.com', 'BSEE', 1, 'goat', 28, 'MAC Laboratory', 'C++ Programming', '2025-03-18', '03:04:16', 'Completed', 0, 0),
+(15, 'Rizada', 'John Aries', 'Canama', 'rizadajohn5@gmail.com', 'BSIT', 3, 'admin', 24, '524', 'C Programming', '2025-03-18', '02:40:07', 'Active', 10, 3),
+(11, 'alpha', 'bravo', 'cat', 'cat@gmail.com', 'BSEE', 1, 'goat', 27, 'MAC Laboratory', 'C++ Programming', '2025-03-18', '03:04:16', 'Active', 0, 0),
 (22631824, 'Rizada', 'paulo', 'canama', 'paulo@gmail.com', 'BSAE', 3, 'rizada', 30, '524', 'Java Programming', '2025-03-13', '07:15:56', 'active', 0, 0),
 (234231, 'asdfasdfasdfas', 'sadfasf', 'asdfasdfasdfa', 'adafs@gmail.com', 'BSAD', 3, 'sdfasdf', 30, 'MAC Laboratory', 'C++ Programming', NULL, NULL, 'active', 0, 0),
 (1111, 'asdfasd', 'asdfasdf', 'asdfasdf', 'asdfasdf@gmail.com', 'BSEE', 3, 'dsfasdf', 29, '530', 'C# Programming', NULL, NULL, 'Completed', 0, 0),
@@ -435,6 +451,12 @@ ALTER TABLE `lab_resources`
 -- Indexes for table `lab_schedules`
 --
 ALTER TABLE `lab_schedules`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `pc_status`
+--
+ALTER TABLE `pc_status`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -508,10 +530,16 @@ ALTER TABLE `lab_schedules`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
+-- AUTO_INCREMENT for table `pc_status`
+--
+ALTER TABLE `pc_status`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `reservations`
 --
 ALTER TABLE `reservations`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `resources`
