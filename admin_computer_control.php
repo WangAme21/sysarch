@@ -1,179 +1,265 @@
 <?php
-// Simulating a list of labs (Lab1, Lab2, Lab3, Lab4)
+include('db.php');
+
+// Simulated labs
 $labs = [
-    ['id' => 1, 'name' => 'Lab524'],
-    ['id' => 2, 'name' => 'Lab544'],
-    ['id' => 3, 'name' => 'Lab542'],
-    ['id' => 4, 'name' => 'Lab530'],
-    ['id' => 3, 'name' => 'Lab528'],
-    ['id' => 3, 'name' => 'Lab526'],
+    ['id' => 524, 'name' => 'Lab524'],
+    ['id' => 544, 'name' => 'Lab544'],
+    ['id' => 542, 'name' => 'Lab542'],
+    ['id' => 530, 'name' => 'Lab530'],
+    ['id' => 528, 'name' => 'Lab528'],
+    ['id' => 526, 'name' => 'Lab526'],
 ];
+
+$selectedLabId = null;
+
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['pc_id'], $_POST['status'], $_POST['lab_id'])) {
+    $pc_id = $_POST['pc_id'];
+    $status = $_POST['status'];
+    $selectedLabId = $_POST['lab_id']; // Preserve lab selection
+
+    // Update the PC status
+    $update = $connection->prepare("UPDATE pcs SET status = ? WHERE id = ?");
+    $update->bind_param("si", $status, $pc_id);
+    $update->execute();
+}
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="assets/styles.css?v=<?php echo time(); ?>">
     <title>Computer Control V2</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet"> <!-- FontAwesome for PC Icon -->
+    <link rel="stylesheet" href="assets/styles.css?v=<?php echo time(); ?>">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <style>
-        body {
-            font-family: Arial, sans-serif;
+        body { font-family: Arial, sans-serif; }
+        h2 { text-align: center; }
+        #labSelect {
+            display: block;
+            margin: 0 auto 2rem auto;
+            padding: 0.5rem;
+            font-size: 1rem;
         }
 
-        .pc-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, 120px); 
-            gap: 15px; 
-            margin-top: 100px;
+        .pc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 2rem;
+            padding: 3rem;
+            max-width: 1600px;
+            margin: 0 auto;
         }
 
         .pc-item {
-            width: 120px; 
-            height: 120px; 
-            border: 1px solid #ccc; 
-            text-align: center; 
-            line-height: 30px;
-            font-size: 14px; 
-            cursor: pointer; 
-            border-radius: 8px;
-            position: relative;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem 1rem;
+            text-align: center;
+            transition: transform 0.2s ease-in-out;
             display: flex;
-            justify-content: center;
-            align-items: center;
             flex-direction: column;
-            transition: background-color 0.3s ease;
+            align-items: center;
         }
 
-        .available { background-color: #d4edda; }
-        .in_use { background-color: #f8d7da; }
-        .offline { background-color: #d6d8d9; }
-        .maintenance { background-color: #fff3cd; }
+        .pc-item:hover { transform: scale(1.02); }
 
-        .status-label {
-            font-size: 10px;
-            color: #fff;
-            background-color: rgba(0, 0, 0, 0.7);
-            padding: 2px 5px;
-            border-radius: 4px;
-            position: absolute;
-            bottom: 5px;
-            right: 5px;
+        .pc-icon i {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: #4b5563;
         }
 
         .pc-number {
-            font-size: 18px;
             font-weight: bold;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+            color: #111827;
         }
 
-        .pc-icon {
-            font-size: 40px;
-            margin-bottom: 10px;
+        .status-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            padding: 0.3rem 0.6rem;
+            border-radius: 20px;
+            margin: 0.5rem 0;
+            display: inline-block;
         }
 
-        .pc-item:hover {
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+        .pc-item.available .status-label {
+            background-color: #d1fae5;
+            color: #065f46;
         }
 
-        h2{
-            text-align: center;
+        .pc-item.in_use .status-label {
+            background-color: #fee2e2;
+            color: #991b1b;
         }
 
-        #labSelect{
-            position: absolute;
-            left: 50%;
-            top: 30%;
-            transform: translate(-50%, -50%);
+        .pc-item.disabled .status-label {
+            background-color: #e5e7eb;
+            color: #4b5563;
         }
 
-        
+        .pc-item.maintenance .status-label {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
 
+        .pc-item.offline .status-label {
+            background-color: #f3f4f6;
+            color: #6b7280;
+        }
+
+        .pc-item form {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+            margin-top: 1rem;
+        }
+
+        .pc-item button {
+            padding: 0.4rem;
+            font-size: 0.85rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .pc-item button:hover { opacity: 0.85; }
+
+        .pc-item button[name="status"][value="available"] {
+            background-color: #10b981;
+            color: white;
+        }
+
+        .pc-item button[name="status"][value="disabled"] {
+            background-color: #6b7280;
+            color: white;
+        }
+
+        .pc-item button[name="status"][value="maintenance"] {
+            background-color: #f59e0b;
+            color: white;
+        }
     </style>
 </head>
 <body>
+
 <nav>
     <h1>CCS Admin</h1>
-    <div class="menu-icon" id="menu-icon">☰</div>
-    <div class="nav-links-admin" id="nav-links">
-        <a id="home-nav" href="admindashboard.php"> Home</a>
-        <a href="#" onclick="searchFunction()" id="search-btn"> Search Students</a>
-        <a href="current-sit-in.php"> Sit-in</a>
+    <div class="nav-links-admin">
+        <a href="admindashboard.php">Home</a>
+        <a href="#" onclick="searchFunction()">Search Students</a>
+        <a href="current-sit-in.php">Sit-in</a>
         <a href="view-sit-in-records.php">Sit-in Records</a>
-        <a href="sit-in-reports.php"> Sit-in Reports</a>
-        <a href="feedback-reports.php"> Feedback Reports</a>   
+        <a href="sit-in-reports.php">Sit-in Reports</a>
+        <a href="feedback-reports.php">Feedback Reports</a>
         <a href="view-reservations.php">Reservation</a>
         <a href="student_management.php">Student Info</a>
         <a href="lab_schedule.php">Lab Schedule</a>
         <a href="lab_resources.php">Lab Resources</a>
         <a href="admin_computer_control.php">PC Control</a>
-        <a href="admin.php" class="logout-btn" id="logoutbtn"> Log out </a>
-    </div> 
+        <a href="admin.php" class="logout-btn">Log out</a>
+    </div>
 </nav>
-    <h2>Computer Control Panel</h2>
 
-    <select id="labSelect" onchange="loadComputers()">
-        <option value="">Select Lab</option>
-        <?php foreach ($labs as $lab): ?>
-            <option value="<?= $lab['id'] ?>"><?= htmlspecialchars($lab['name']) ?></option>
-        <?php endforeach; ?>
-    </select>
+<h2>Computer Control Panel</h2>
 
-    <div id="computers" class="pc-grid"></div>
+<select id="labSelect" onchange="loadComputers()">
+    <option value="">Select Lab</option>
+    <?php foreach ($labs as $lab): ?>
+        <option value="<?= $lab['id'] ?>" <?= ($selectedLabId == $lab['id']) ? 'selected' : '' ?>>
+            <?= htmlspecialchars($lab['name']) ?>
+        </option>
+    <?php endforeach; ?>
+</select>
 
-    <script>
-        function loadComputers() {
-            const labId = document.getElementById("labSelect").value;
-            if (!labId) return;
+<div id="computers" class="pc-grid"></div>
 
-            // Simulating fetching 30 PCs for each lab (Lab1, Lab2, Lab3, Lab4), all set to 'offline'
-            const totalPCs = 30;
-            const computers = [];
-            for (let i = 1; i <= totalPCs; i++) {
-                computers.push({
-                    id: i,
-                    pc_number: i,
-                    status: 'offline'  // Set all computers to "offline" by default
+<script>
+    function loadComputers() {
+        const labId = document.getElementById("labSelect").value;
+        if (!labId) return;
+
+        fetch(`get_pcs.php?lab=${labId}`)
+            .then(res => res.json())
+            .then(data => {
+                const grid = document.getElementById("computers");
+                grid.innerHTML = "";
+
+                data.forEach(pc => {
+                    const div = document.createElement("div");
+                    div.className = "pc-item " + pc.status;
+
+                    const pcNumber = document.createElement("div");
+                    pcNumber.className = "pc-number";
+                    pcNumber.innerText = "PC-" + pc.pc_number;
+
+                    const pcIcon = document.createElement("div");
+                    pcIcon.className = "pc-icon";
+                    pcIcon.innerHTML = "<i class='fas fa-desktop'></i>";
+
+                    const statusLabel = document.createElement("div");
+                    statusLabel.className = "status-label";
+                    statusLabel.innerText = pc.status.charAt(0).toUpperCase() + pc.status.slice(1);
+
+                    const actionsDiv = document.createElement("div");
+                    actionsDiv.innerHTML = `
+                       <form class="status-form" data-pc-id="${pc.id}" data-lab-id="${labId}">
+    <button type="button" data-status="available">Enable</button>
+    <button type="button" data-status="disabled">Disable</button>
+    <button type="button" data-status="maintenance">Maintenance</button>
+</form>
+
+                    `;
+
+                    div.appendChild(pcIcon);
+                    div.appendChild(pcNumber);
+                    div.appendChild(statusLabel);
+                    div.appendChild(actionsDiv);
+
+                    grid.appendChild(div);
                 });
-            }
-
-            const grid = document.getElementById("computers");
-            grid.innerHTML = "";
-
-            computers.forEach(pc => {
-                const div = document.createElement("div");
-                div.className = "pc-item " + pc.status;
-
-                const pcNumber = document.createElement("div");
-                pcNumber.className = "pc-number";
-                pcNumber.innerText = "PC-" + pc.pc_number;
-
-                const pcIcon = document.createElement("div");
-                pcIcon.className = "pc-icon";
-                pcIcon.innerHTML = "<i class='fas fa-desktop'></i>";  // FontAwesome PC Icon
-
-                const statusLabel = document.createElement("div");
-                statusLabel.className = "status-label";
-                statusLabel.innerText = "Offline";  // Label for offline status
-
-                div.appendChild(pcIcon);
-                div.appendChild(pcNumber);
-                div.appendChild(statusLabel);
-                div.onclick = () => toggleSession(pc.id, pc.status);
-
-                grid.appendChild(div);
+            })
+            .catch(err => {
+                console.error("Failed to load PCs:", err);
             });
-        }
+    }
 
-        function toggleSession(pcId, currentStatus) {
-            const action = currentStatus === "in_use" ? "end" : "start";
-            const studentId = action === "start" ? prompt("Enter Student ID:") : null;
-            if (action === "start" && !studentId) return;
+    document.addEventListener('click', function(e) {
+    if (e.target.closest('.status-form') && e.target.matches('button')) {
+        const form = e.target.closest('.status-form');
+        const status = e.target.getAttribute('data-status');
+        const pcId = form.getAttribute('data-pc-id');
+        const labId = form.getAttribute('data-lab-id');
 
-            // Simulating toggling session (without backend in this example)
-            console.log(`Toggling session for PC-${pcId}: ${action}, Student ID: ${studentId || "N/A"}`);
-            loadComputers();  // Reload computers after toggling session
+        fetch('admin_computer_control.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: `pc_id=${pcId}&status=${status}&lab_id=${labId}`
+        })
+        .then(res => res.ok ? loadComputers() : alert("Failed to update PC status."))
+        .catch(err => {
+            console.error("Error updating status:", err);
+        });
+    }
+});
+
+
+    // Reload PCs if a lab was previously selected
+    document.addEventListener("DOMContentLoaded", () => {
+        const selectedLab = "<?= $selectedLabId ?? '' ?>";
+        if (selectedLab) {
+            document.getElementById("labSelect").value = selectedLab;
+            loadComputers();
         }
-    </script>
+    });
+</script>
+
 </body>
 </html>

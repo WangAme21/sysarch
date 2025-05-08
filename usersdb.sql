@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 07, 2025 at 04:02 AM
+-- Generation Time: May 08, 2025 at 06:40 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -175,6 +175,29 @@ INSERT INTO `lab_schedules` (`id`, `title`, `description`, `start_date`, `end_da
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `pcs`
+--
+
+CREATE TABLE `pcs` (
+  `id` int(11) NOT NULL,
+  `lab` varchar(50) DEFAULT NULL,
+  `pc_number` int(11) DEFAULT NULL,
+  `status` enum('offline','online','in_use','maintenance') DEFAULT 'offline'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `pcs`
+--
+
+INSERT INTO `pcs` (`id`, `lab`, `pc_number`, `status`) VALUES
+(1, '528', 10, 'in_use'),
+(2, '524', 1, ''),
+(3, '530', 30, ''),
+(4, '530', 14, '');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `pc_status`
 --
 
@@ -217,8 +240,22 @@ INSERT INTO `reservations` (`id`, `id_number`, `student_name`, `purpose`, `lab`,
 (10, '333', 'sdfasdf sdfasf', 'C programming', '530', '22:43:00', '2025-05-04', 28, '2025-05-04 14:43:28', 'Accepted', ''),
 (11, '2222', 'asdfasdf dfasdf', 'C programming', '530', '22:45:00', '2025-05-04', 23, '2025-05-04 14:45:13', 'Accepted', ''),
 (12, '15', 'John Aries Rizada', 'php programming', '544', '13:02:00', '2025-02-01', 28, '2025-05-06 22:45:48', 'Accepted', ''),
-(13, '15', 'John Aries Rizada', 'Java Programming', '542', '09:52:00', '2025-05-07', 24, '2025-05-07 01:53:49', 'Accepted', '11'),
-(14, '11', 'bravo alpha', 'Java Programming', '524', '10:01:00', '2025-05-07', 27, '2025-05-07 02:01:55', 'Accepted', '1');
+(13, '15', 'John Aries Rizada', 'Java Programming', '542', '09:52:00', '2025-05-07', 23, '2025-05-07 01:53:49', 'Accepted', '11'),
+(14, '11', 'bravo alpha', 'Java Programming', '524', '10:01:00', '2025-05-07', 25, '2025-05-07 02:01:55', 'Accepted', '1'),
+(15, '15', 'John Aries Rizada', 'Java Programming', '544', '12:27:00', '2025-05-08', 25, '2025-05-08 13:27:34', 'Pending', '11'),
+(16, '15', 'John Aries Rizada', 'C Programming', '526', '21:56:00', '2025-05-08', 25, '2025-05-08 13:56:55', 'Pending', '1'),
+(17, '15', 'John Aries Rizada', 'Java Programming', '542', '21:57:00', '2025-05-08', 25, '2025-05-08 13:58:02', 'Pending', '4'),
+(18, '15', 'John Aries Rizada', 'Php Programming', '530', '21:59:00', '2025-05-08', 25, '2025-05-08 13:59:34', 'Pending', '1'),
+(19, '15', 'John Aries Rizada', 'C Programming', '524', '22:00:00', '2025-05-08', 25, '2025-05-08 14:00:35', 'Pending', '1'),
+(20, '15', 'John Aries Rizada', 'C# Programming', '524', '22:01:00', '2025-05-08', 25, '2025-05-08 14:01:13', 'Pending', '3'),
+(21, '15', 'John Aries Rizada', 'C++ Programming', '524', '22:25:00', '2025-05-08', 25, '2025-05-08 14:25:08', 'Pending', '7'),
+(22, '15', 'John Aries Rizada', 'Java Programming', '524', '22:36:00', '2025-05-08', 22, '2025-05-08 14:36:20', 'Accepted', '1'),
+(23, '11', 'bravo alpha', 'C# Programming', '524', '22:47:00', '2025-05-08', 24, '2025-05-08 14:47:29', 'Accepted', '15'),
+(24, '11', 'bravo alpha', 'Java Programming', '528', '22:56:00', '2025-05-08', 23, '2025-05-08 14:56:14', 'Accepted', '10'),
+(25, '11', 'bravo alpha', 'Java Programming', '524', '22:58:00', '2025-05-08', 22, '2025-05-08 14:58:53', 'Accepted', '1'),
+(26, '444', 'asdfas sdafads', 'Python Programming', '524', '23:04:00', '2025-05-08', 28, '2025-05-08 15:05:22', 'Accepted', '1'),
+(27, '444', 'asdfas sdafads', 'C# Programming', '530', '23:14:00', '2025-05-08', 27, '2025-05-08 15:17:21', 'Accepted', '30'),
+(28, '333', 'sdfasdf sdfasf', 'C# Programming', '530', '23:34:00', '2025-05-08', 26, '2025-05-08 15:34:13', 'Accepted', '14');
 
 -- --------------------------------------------------------
 
@@ -385,18 +422,18 @@ CREATE TABLE `userstbl` (
 --
 
 INSERT INTO `userstbl` (`idno`, `lastname`, `firstname`, `middlename`, `email`, `course`, `level`, `password`, `sessions`, `labs`, `purpose`, `date_login`, `login_date`, `status`, `points`, `claimed_rewards`) VALUES
-(15, 'Rizada', 'John Aries', 'Canama', 'rizadajohn5@gmail.com', 'BSIT', 3, 'admin', 24, '524', 'C Programming', '2025-03-18', '02:40:07', 'Active', 10, 3),
-(11, 'alpha', 'bravo', 'cat', 'cat@gmail.com', 'BSEE', 1, 'goat', 27, 'MAC Laboratory', 'C++ Programming', '2025-03-18', '03:04:16', 'Active', 0, 0),
+(15, 'Rizada', 'John Aries', 'Canama', 'rizadajohn5@gmail.com', 'BSIT', 3, 'admin', 22, '524', 'C Programming', '2025-03-18', '02:40:07', 'Active', 10, 3),
+(11, 'alpha', 'bravo', 'cat', 'cat@gmail.com', 'BSEE', 1, 'goat', 22, 'MAC Laboratory', 'C++ Programming', '2025-03-18', '03:04:16', 'Active', 0, 0),
 (22631824, 'Rizada', 'paulo', 'canama', 'paulo@gmail.com', 'BSAE', 3, 'rizada', 30, '524', 'Java Programming', '2025-03-13', '07:15:56', 'active', 0, 0),
 (234231, 'asdfasdfasdfas', 'sadfasf', 'asdfasdfasdfa', 'adafs@gmail.com', 'BSAD', 3, 'sdfasdf', 30, 'MAC Laboratory', 'C++ Programming', NULL, NULL, 'active', 0, 0),
 (1111, 'asdfasd', 'asdfasdf', 'asdfasdf', 'asdfasdf@gmail.com', 'BSEE', 3, 'dsfasdf', 29, '530', 'C# Programming', NULL, NULL, 'Completed', 0, 0),
-(2222, 'dfasdf', 'asdfasdf', 'asdfasdf', 'sdafasd@gmail.com', 'BSSEAWD', 2, '123', 22, '526', 'Python Programming', '2025-03-13', '08:18:39', 'Completed', 3, 1),
-(333, 'sdfasf', 'sdfasdf', 'sdfasdf', 'sdafa@gmail.com', 'sdfasd', 1, 'asdfs', 27, '528', 'Php Programming', '2025-03-13', '07:14:57', 'Completed', 7, 2),
+(2222, 'dfasdf', 'asdfasdf', 'asdfasdf', 'sdafasd@gmail.com', 'BSSEAWD', 2, '123', 28, '526', 'Python Programming', '2025-03-13', '08:18:39', 'Completed', 23, 7),
+(333, 'sdfasf', 'sdfasdf', 'sdfasdf', 'sdafa@gmail.com', 'sdfasd', 1, 'asdfs', 26, '528', 'Php Programming', '2025-03-13', '07:14:57', 'Completed', 7, 2),
 (34523, 'fasdfas', 'asdfas', 'sdfasdf', 'dsfa@gmail.com', 'sdfas', 3, '444', 30, NULL, NULL, NULL, NULL, NULL, 0, 0),
-(444, 'sdafads', 'asdfas', 'sadfasdf', 'sdfas@gmail.com', 'sadf', 2, '444', 29, '526', 'C# Programming', NULL, NULL, 'Completed', 2, 0),
+(444, 'sdafads', 'asdfas', 'sadfasdf', 'sdfas@gmail.com', 'sadf', 2, '444', 27, '526', 'C# Programming', NULL, NULL, 'Completed', 2, 0),
 (86876, 'sdfasdS', 'SDFASFA', 'dafasdfa', 'wdfasdfa@gmail.com', 'dadfa', 2, '132', 30, NULL, NULL, NULL, NULL, NULL, 0, 0),
 (123, 'sdfasdf', 'sadfasdf', 'sdfasd', 'sdafas@gmail.com', 'sdfad', 21, '2', 30, 'MAC Laboratory', 'C++ Programming', NULL, NULL, 'active', 0, 0),
-(422, 'sdfasdf', 'sadfasdf', 'sdfasd', 'sdafas@gmail.com', 'sdfad', 21, 'sdfa', 29, '528', 'Python Programming', NULL, NULL, 'Completed', 5, 0),
+(422, 'sdfasdf', 'sadfasdf', 'sdfasd', 'sdafas@gmail.com', 'sdfad', 21, 'sdfa', 34, '528', 'Python Programming', NULL, NULL, 'Completed', 17, 5),
 (5234, 'Gimenez', 'Jerick', 'Urcales', 'jerick@gmail.com', 'BSMT', 2, '4231', 30, '524', 'C Programming', '2025-03-18', '03:07:53', 'active', 0, 0),
 (523423, 'sdafas', 'sadfas', 'asdfas', 'sadf2@gmail.com', 'Sdfadf', 3, 'ssdfa32', 30, '524', 'C Programming', NULL, NULL, 'active', 0, 0),
 (2242, 'sadfas', 'asdfasdf', 'asdfasdf', 'asdfasd@gmail.com', 'sadfasd', 3, 'sdfsaf', 30, '524', 'C Programming', NULL, NULL, 'active', 16, 0),
@@ -451,6 +488,12 @@ ALTER TABLE `lab_resources`
 -- Indexes for table `lab_schedules`
 --
 ALTER TABLE `lab_schedules`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `pcs`
+--
+ALTER TABLE `pcs`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -530,6 +573,12 @@ ALTER TABLE `lab_schedules`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
+-- AUTO_INCREMENT for table `pcs`
+--
+ALTER TABLE `pcs`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
 -- AUTO_INCREMENT for table `pc_status`
 --
 ALTER TABLE `pc_status`
@@ -539,7 +588,7 @@ ALTER TABLE `pc_status`
 -- AUTO_INCREMENT for table `reservations`
 --
 ALTER TABLE `reservations`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
 -- AUTO_INCREMENT for table `resources`

@@ -13,11 +13,15 @@ if (!empty($search)) {
 $query = "SELECT * FROM userstbl $searchQuery ORDER BY idno ASC";
 $result = mysqli_query($connection, $query);
 
-// Top Points and Time Spent - adjust based on your DB structure
-$topPointsQuery = "SELECT * FROM userstbl ORDER BY points DESC LIMIT 1";
+// Top 5 Points Earners
+$topPointsQuery = "SELECT * FROM userstbl ORDER BY points DESC LIMIT 5";
 $topPointsResult = mysqli_query($connection, $topPointsQuery);
-$topPoints = mysqli_fetch_assoc($topPointsResult);
+$topPointsList = [];
+while ($row = mysqli_fetch_assoc($topPointsResult)) {
+    $topPointsList[] = $row;
+}
 
+// Top Time Spent (still top 1 for now)
 $topTimeQuery = "SELECT * FROM userstbl ORDER BY login_date DESC LIMIT 1";
 $topTimeResult = mysqli_query($connection, $topTimeQuery);
 $topTime = mysqli_fetch_assoc($topTimeResult);
@@ -27,15 +31,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_points'])) {
     $idno = $_POST['idno'];
     $points = $_POST['points'];
 
-    // Ensure points is a number
     if (is_numeric($points)) {
-        // Update points
         $updatePointsQuery = "UPDATE userstbl SET points = points + ? WHERE idno = ?";
         $stmt = $connection->prepare($updatePointsQuery);
         $stmt->bind_param("is", $points, $idno);
         $stmt->execute();
 
-        // Fetch the user's new points and session info
         $sessionUpdateQuery = "SELECT points, claimed_rewards, sessions FROM userstbl WHERE idno = ?";
         $stmt = $connection->prepare($sessionUpdateQuery);
         $stmt->bind_param("s", $idno);
@@ -44,31 +45,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_points'])) {
         $stmt->fetch();
         $stmt->close();
 
-        // Calculate newly earned rewards based on the total points
         $newRewards = floor($totalPoints / 3);
         $newlyEarned = $newRewards - $claimedRewards;
 
-        // Add new sessions if the user has earned any new rewards
         if ($newlyEarned > 0) {
             $sessions += $newlyEarned;
             $claimedRewards = $newRewards;
 
-            // Update sessions and claimed rewards in the database
             $sessionUpdateQuery = "UPDATE userstbl SET sessions = ?, claimed_rewards = ? WHERE idno = ?";
             $stmt = $connection->prepare($sessionUpdateQuery);
             $stmt->bind_param("iis", $sessions, $claimedRewards, $idno);
             $stmt->execute();
         }
 
-        // Redirect to avoid form resubmission
         header("Location: student_management.php");
         exit();
     } else {
         $errorMessage = "Points must be a valid number.";
     }
 }
-
-
 ?>
 
 <!DOCTYPE html>
@@ -167,8 +162,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_points'])) {
 
 <div class="top-boxes">
     <div class="box">
-        <strong>Top Points Earner</strong><br>
-        <?= $topPoints ? $topPoints['firstname'] . " " . $topPoints['lastname'] . " - Sessions: " . $topPoints['sessions'] : "No points data available" ?>
+        <strong>Top 5 Points Earners</strong><br>
+        <?php if (count($topPointsList) > 0): ?>
+            <ol style="padding-left: 20px; margin: 10px 0 0;">
+                <?php foreach ($topPointsList as $student): ?>
+                    <li><?= $student['firstname'] . ' ' . $student['lastname'] ?> - <?= $student['points'] ?> pts, <?= $student['sessions'] ?> sessions</li>
+                <?php endforeach; ?>
+            </ol>
+        <?php else: ?>
+            No points data available
+        <?php endif; ?>
     </div>
     <div class="box">
         <strong>Top Time Spent</strong><br>
