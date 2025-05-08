@@ -14,39 +14,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $date = $_POST['date'];
     $session = $_POST['session'];
 
-    // Check if PC exists and is available (not reserved or in use)
-    $checkPC = $connection->prepare("SELECT id, status FROM pcs WHERE lab = ? AND pc_number = ?");
-    $checkPC->bind_param("si", $lab, $pc_number);
-    $checkPC->execute();
-    $checkPC->store_result();
+    // Check if PC exists, if not insert it
+$checkPC = $connection->prepare("SELECT id FROM pcs WHERE lab = ? AND pc_number = ?");
+$checkPC->bind_param("si", $lab, $pc_number);
+$checkPC->execute();
+$checkPC->store_result();
 
-    if ($checkPC->num_rows > 0) {
-        $checkPC->bind_result($pcId, $status);
-        $checkPC->fetch();
-        
-        // If the PC is in use or reserved, show an error
-        if ($status == 'in_use' || $status == 'reserved') {
-            echo "<script>alert('This PC is already in use or reserved. Please select another one.');</script>";
-        } else {
-            // Proceed with reserving the PC
-            // Update PC status to 'reserved'
-            $updatePCStatus = $connection->prepare("UPDATE pcs SET status = 'reserved' WHERE lab = ? AND pc_number = ?");
-            $updatePCStatus->bind_param("si", $lab, $pc_number);
-            $updatePCStatus->execute();
+if ($checkPC->num_rows === 0) {
+    $insertPC = $connection->prepare("INSERT INTO pcs (lab, pc_number, status) VALUES (?, ?, 'in_use')");
+    $insertPC->bind_param("si", $lab, $pc_number);
+    $insertPC->execute();
+}
 
-            // Insert into reservations table
-            $stmt = $connection->prepare("INSERT INTO reservations (id_number, student_name, purpose, lab, pc_number, time_in, date, remaining_session, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Pending')");
-            $stmt->bind_param("sssssssi", $id_number, $student_name, $purpose, $lab, $pc_number, $time_in, $date, $session);
+    // Insert into reservations
+    $stmt = $connection->prepare("INSERT INTO reservations (id_number, student_name, purpose, lab, pc_number, time_in, date, remaining_session, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Pending')");
+    $stmt->bind_param("sssssssi", $id_number, $student_name, $purpose, $lab, $pc_number, $time_in, $date, $session);
 
-            if ($stmt->execute()) {
-                header("Location: reservation.php?success=1");
-                exit();
-            } else {
-                echo "Error: " . $stmt->error;
-            }
-        }
+    if ($stmt->execute()) {
+       
+
+        header("Location: reservation.php?success=1");
+        exit();
     } else {
-        echo "<script>alert('The PC does not exist. Please select a valid PC.');</script>";
+        echo "Error: " . $stmt->error;
     }
 }
 ?>
@@ -140,20 +130,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </select>
 
     <label>Lab Room:</label>
-<select name="lab" id="lab-dropdown" required>
-    <option value="">Select Lab</option>
-    <option value="524">524</option>
-    <option value="544">544</option>
-    <option value="542">542</option>
-    <option value="530">530</option>
-    <option value="528">528</option>
-    <option value="526">526</option>
-    <option value="MAC Laboratory">MAC Laboratory</option>
-</select>
+    <select name="lab" required>
+        <option value="">Select Lab</option>
+        <option value="524">524</option>
+        <option value="544">544</option>
+        <option value="542">542</option>
+        <option value="530">530</option>
+        <option value="528">528</option>
+        <option value="526">526</option>
+        <option value="MAC Laboratory">MAC Laboratory</option>
+    </select>
 
     <label>PC Number:</label>
-    <select name="pc_number" id="pc-dropdown" required>
-    <option value="">Select PC</option>
+    <select name="pc_number" required>
+        <option value="">Select PC</option>
         <?php for ($i = 1; $i <= 30; $i++): ?>
             <option value="<?= $i ?>">PC-<?= $i ?></option>
         <?php endfor; ?>
@@ -177,38 +167,4 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 
 </body>
-<script>
-document.getElementById('lab-dropdown').addEventListener('change', function() {
-  const labId = this.value;
-
-  if (labId) {
-    fetch(`get_available_pcs.php?lab=${encodeURIComponent(labId)}`)
-      .then(res => res.json())
-      .then(data => {
-        const dropdown = document.getElementById('pc-dropdown');
-        dropdown.innerHTML = ''; // Clear previous options
-
-        if (data.length === 0) {
-          const option = document.createElement('option');
-          option.text = 'No available PCs';
-          option.disabled = true;
-          dropdown.appendChild(option);
-        } else {
-          // Add available PCs to the dropdown
-          data.forEach(pc => {
-            const option = document.createElement('option');
-            option.value = pc.pc_number;
-            option.text = `PC #${pc.pc_number}`;
-            dropdown.appendChild(option);
-          });
-        }
-      })
-      .catch(error => {
-        console.error('Error fetching available PCs:', error);
-      });
-  }
-});
-
-</script>
-
 </html>

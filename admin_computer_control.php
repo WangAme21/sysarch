@@ -1,7 +1,7 @@
+
 <?php
 include('db.php');
-
-// Simulated labs
+// Simulated labs (with unique IDs)
 $labs = [
     ['id' => 524, 'name' => 'Lab524'],
     ['id' => 544, 'name' => 'Lab544'],
@@ -11,17 +11,18 @@ $labs = [
     ['id' => 526, 'name' => 'Lab526'],
 ];
 
-$selectedLabId = null;
-
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['pc_id'], $_POST['status'], $_POST['lab_id'])) {
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['pc_id']) && isset($_POST['status'])) {
     $pc_id = $_POST['pc_id'];
     $status = $_POST['status'];
-    $selectedLabId = $_POST['lab_id']; // Preserve lab selection
 
     // Update the PC status
     $update = $connection->prepare("UPDATE pcs SET status = ? WHERE id = ?");
     $update->bind_param("si", $status, $pc_id);
     $update->execute();
+
+    // Redirect back
+    header("Location: admin_computer_control.php");
+    exit();
 }
 ?>
 
@@ -34,116 +35,124 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['pc_id'], $_POST['statu
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <style>
         body { font-family: Arial, sans-serif; }
-        h2 { text-align: center; }
-        #labSelect {
-            display: block;
-            margin: 0 auto 2rem auto;
-            padding: 0.5rem;
-            font-size: 1rem;
-        }
 
-        .pc-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 2rem;
-            padding: 3rem;
-            max-width: 1600px;
-            margin: 0 auto;
-        }
-
-        .pc-item {
-            background-color: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            padding: 1.5rem 1rem;
+        h2{
             text-align: center;
-            transition: transform 0.2s ease-in-out;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
         }
+        #labSelect {
+    display: block;
+    margin: 0 auto 2rem auto;
+    padding: 0.5rem;
+    font-size: 1rem;
+}
 
-        .pc-item:hover { transform: scale(1.02); }
+.pc-grid {
+    display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 2rem; /* Increased space between cards */
+  padding: 3rem; /* Adds space around the entire grid */
+  max-width: 1600px;
+  margin: 0 auto;
+}
 
-        .pc-icon i {
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
-            color: #4b5563;
-        }
+.pc-item {
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem 1rem; /* more inner spacing */
+    text-align: center;
+    transition: transform 0.2s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
 
-        .pc-number {
-            font-weight: bold;
-            margin-bottom: 0.5rem;
-            font-size: 1.1rem;
-            color: #111827;
-        }
+.pc-item:hover {
+    transform: scale(1.02);
+}
 
-        .status-label {
-            font-size: 0.9rem;
-            font-weight: 600;
-            padding: 0.3rem 0.6rem;
-            border-radius: 20px;
-            margin: 0.5rem 0;
-            display: inline-block;
-        }
+.pc-icon i {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    color: #4b5563;
+}
 
-        .pc-item.available .status-label {
-            background-color: #d1fae5;
-            color: #065f46;
-        }
+.pc-number {
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+    color: #111827;
+}
 
-        .pc-item.in_use .status-label {
-            background-color: #fee2e2;
-            color: #991b1b;
-        }
+.status-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 0.3rem 0.6rem;
+    border-radius: 20px;
+    margin: 0.5rem 0;
+    display: inline-block;
+}
 
-        .pc-item.disabled .status-label {
-            background-color: #e5e7eb;
-            color: #4b5563;
-        }
+.pc-item.available .status-label {
+    background-color: #d1fae5;
+    color: #065f46;
+}
 
-        .pc-item.maintenance .status-label {
-            background-color: #fef3c7;
-            color: #92400e;
-        }
+.pc-item.in_use .status-label {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
 
-        .pc-item.offline .status-label {
-            background-color: #f3f4f6;
-            color: #6b7280;
-        }
+.pc-item.disabled .status-label {
+    background-color: #e5e7eb;
+    color: #4b5563;
+}
 
-        .pc-item form {
-            display: flex;
-            flex-direction: column;
-            gap: 0.6rem;
-            margin-top: 1rem;
-        }
+.pc-item.maintenance .status-label {
+    background-color: #fef3c7;
+    color: #92400e;
+}
 
-        .pc-item button {
-            padding: 0.4rem;
-            font-size: 0.85rem;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
+.pc-item.offline .status-label {
+    background-color: #f3f4f6;
+    color: #6b7280;
+}
 
-        .pc-item button:hover { opacity: 0.85; }
+.pc-item form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem; /* more space between buttons */
+    margin-top: 1rem;
+}
 
-        .pc-item button[name="status"][value="available"] {
-            background-color: #10b981;
-            color: white;
-        }
 
-        .pc-item button[name="status"][value="disabled"] {
-            background-color: #6b7280;
-            color: white;
-        }
+.pc-item button {
+    padding: 0.4rem;
+    font-size: 0.85rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
 
-        .pc-item button[name="status"][value="maintenance"] {
-            background-color: #f59e0b;
-            color: white;
-        }
+.pc-item button:hover {
+    opacity: 0.85;
+}
+
+.pc-item button[name="status"][value="available"] {
+    background-color: #10b981;
+    color: white;
+}
+
+.pc-item button[name="status"][value="disabled"] {
+    background-color: #6b7280;
+    color: white;
+}
+
+.pc-item button[name="status"][value="maintenance"] {
+    background-color: #f59e0b;
+    color: white;
+}
     </style>
 </head>
 <body>
@@ -171,9 +180,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['pc_id'], $_POST['statu
 <select id="labSelect" onchange="loadComputers()">
     <option value="">Select Lab</option>
     <?php foreach ($labs as $lab): ?>
-        <option value="<?= $lab['id'] ?>" <?= ($selectedLabId == $lab['id']) ? 'selected' : '' ?>>
-            <?= htmlspecialchars($lab['name']) ?>
-        </option>
+        <option value="<?= $lab['id'] ?>"><?= htmlspecialchars($lab['name']) ?></option>
     <?php endforeach; ?>
 </select>
 
@@ -208,13 +215,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['pc_id'], $_POST['statu
 
                     const actionsDiv = document.createElement("div");
                     actionsDiv.innerHTML = `
-                       <form class="status-form" data-pc-id="${pc.id}" data-lab-id="${labId}">
-    <button type="button" data-status="available">Enable</button>
-    <button type="button" data-status="disabled">Disable</button>
-    <button type="button" data-status="maintenance">Maintenance</button>
-</form>
+    <form method="POST" action="admin_computer_control.php">
+        <input type="hidden" name="pc_id" value="${pc.id}">
+        <button name="status" value="available" type="submit">Enable</button>
+        <button name="status" value="disabled" type="submit">Disable</button>
+        <button name="status" value="maintenance" type="submit">Maintenance</button>
+    </form>
+`;
 
-                    `;
+
 
                     div.appendChild(pcIcon);
                     div.appendChild(pcNumber);
@@ -228,37 +237,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['pc_id'], $_POST['statu
                 console.error("Failed to load PCs:", err);
             });
     }
-
-    document.addEventListener('click', function(e) {
-    if (e.target.closest('.status-form') && e.target.matches('button')) {
-        const form = e.target.closest('.status-form');
-        const status = e.target.getAttribute('data-status');
-        const pcId = form.getAttribute('data-pc-id');
-        const labId = form.getAttribute('data-lab-id');
-
-        fetch('admin_computer_control.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            body: `pc_id=${pcId}&status=${status}&lab_id=${labId}`
-        })
-        .then(res => res.ok ? loadComputers() : alert("Failed to update PC status."))
-        .catch(err => {
-            console.error("Error updating status:", err);
-        });
-    }
-});
-
-
-    // Reload PCs if a lab was previously selected
-    document.addEventListener("DOMContentLoaded", () => {
-        const selectedLab = "<?= $selectedLabId ?? '' ?>";
-        if (selectedLab) {
-            document.getElementById("labSelect").value = selectedLab;
-            loadComputers();
-        }
-    });
 </script>
 
 </body>

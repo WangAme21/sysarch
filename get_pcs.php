@@ -35,7 +35,7 @@ for ($i = 1; $i <= 30; $i++) {
         $pcs[] = [
             'id' => null, // No ID because not in DB
             'pc_number' => $i,
-            'status' => 'Available'
+            'status' => 'offline'
         ];
     }
 }
