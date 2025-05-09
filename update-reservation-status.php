@@ -21,11 +21,7 @@ if (isset($_POST['id']) && isset($_POST['status'])) {
             $lab = $user['lab'];
             $pcNumber = $user['pc_number'];
 
-            // Decrease the session count for the user
-            $decrementQuery = "UPDATE userstbl SET sessions = GREATEST(sessions - 1, 0) WHERE idno = ?";
-            $stmtDecrement = $connection->prepare($decrementQuery);
-            $stmtDecrement->bind_param("s", $idNumber);
-            $stmtDecrement->execute();
+           
 
             // Get updated session count
             $querySessions = "SELECT sessions FROM userstbl WHERE idno = ?";

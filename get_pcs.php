@@ -10,6 +10,26 @@ if (!$labId) {
     exit;
 }
 
+$query = "SELECT pc_number, id, status FROM pcs WHERE lab = ?";
+$stmt = $connection->prepare($query);
+
+if (!$stmt) {
+    http_response_code(500);
+    echo json_encode(['error' => 'Database error: Could not prepare statement']);
+    exit;
+}
+
+$stmt->bind_param("s", $labId);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if (!$result) {
+    http_response_code(500);
+    echo json_encode(['error' => 'Database error: Could not execute query']);
+    exit;
+}
+
+
 // Get existing PC data from the DB
 $query = "SELECT pc_number, id, status FROM pcs WHERE lab = ?";
 $stmt = $connection->prepare($query);

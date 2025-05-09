@@ -1,4 +1,3 @@
-
 <?php
 include('db.php');
 // Simulated labs (with unique IDs)
@@ -48,11 +47,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['pc_id']) && isset($_PO
 
 .pc-grid {
     display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 2rem; /* Increased space between cards */
-  padding: 3rem; /* Adds space around the entire grid */
-  max-width: 1600px;
-  margin: 0 auto;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 2rem; /* Increased space between cards */
+    padding: 3rem; /* Adds space around the entire grid */
+    max-width: 1600px;
+    margin: 0 auto;
 }
 
 .pc-item {
@@ -144,7 +143,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['pc_id']) && isset($_PO
     color: white;
 }
 
-.pc-item button[name="status"][value="disabled"] {
+.pc-item button[name="status"][value="offline"] {
     background-color: #6b7280;
     color: white;
 }
@@ -218,7 +217,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['pc_id']) && isset($_PO
     <form method="POST" action="admin_computer_control.php">
         <input type="hidden" name="pc_id" value="${pc.id}">
         <button name="status" value="available" type="submit">Enable</button>
-        <button name="status" value="disabled" type="submit">Disable</button>
+        <button name="status" value="offline" type="submit">Disable</button>
         <button name="status" value="maintenance" type="submit">Maintenance</button>
     </form>
 `;

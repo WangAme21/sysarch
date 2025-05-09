@@ -9,7 +9,7 @@
         $sessions = $_SESSION['sessions'];
         $purpose = $_POST['purpose'];
         $labs = $_POST['labs'];
-        $status = "active";
+        $status = "Accepted";
 
         date_default_timezone_set("America/New_York");
         $login_time = date("h:i:s");
