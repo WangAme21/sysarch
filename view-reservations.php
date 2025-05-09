@@ -3,12 +3,12 @@ session_start();
 include('db.php');
 
 // Handle search
-$search = $_GET['search'] ?? '';
-$searchQuery = '';
+$searchQuery = "WHERE status != 'Declined'";
 if (!empty($search)) {
     $searchSafe = mysqli_real_escape_string($connection, $search);
-    $searchQuery = "WHERE user_id LIKE '%$searchSafe%' OR student_name LIKE '%$searchSafe%' OR lab LIKE '%$searchSafe%' OR purpose LIKE '%$searchSafe%'";
+    $searchQuery .= " AND (id_number LIKE '%$searchSafe%' OR student_name LIKE '%$searchSafe%' OR lab LIKE '%$searchSafe%' OR purpose LIKE '%$searchSafe%')";
 }
+
 
 $query = "SELECT * FROM reservations $searchQuery ORDER BY id DESC";
 $result = mysqli_query($connection, $query);

@@ -85,7 +85,7 @@ if (isset($_GET['logout_reservation_id'])) {
     </div>
 </nav>
 
-<center><h1>Current Sit in (Based on Approved Reservations)</h1></center>
+<center><h1>Current Sit in</h1></center>
 <?php if (isset($_SESSION['message'])): ?>
     <div style="background-color:#dff0d8; padding:10px; text-align:center; color:#3c763d;">
         <?= $_SESSION['message']; unset($_SESSION['message']); ?>
